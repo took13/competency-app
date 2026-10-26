@@ -3,6 +3,13 @@
 const assignmentState={values:{employeeEmail:'',cycleKey:''},preview:null,result:null,message:'',busy:false};
 const previewFields=['employee','employeeName','profile','trackKey','jobGradeCode','cycleStatus','profileStatus','expectedCount','requirementCount','blockingCount','missingCUVersion','targetRubricIssues','pilotCanAssign'];
 function assignmentMapping(){return window.COMPETENCY_CONFIG?.assignmentContract;}
+// Cycle source boundary: replace this config adapter when a list contract is verified.
+function assignmentCycles(){
+ const rows=window.COMPETENCY_CONFIG?.assessmentCycles;
+ const seen=new Set();
+ return (Array.isArray(rows)?rows:[]).filter(c=>c&&c.active===true&&c.type==='PILOT'&&typeof c.label==='string'&&c.label.trim()&&typeof c.cycleKey==='string'&&c.cycleKey.trim()&&!seen.has(c.cycleKey)&&seen.add(c.cycleKey));
+}
+function assignmentSelectedCycle(){return assignmentCycles().find(c=>c.cycleKey===assignmentState.values.cycleKey);}
 function assignmentReady(){
  const c=assignmentMapping();
  return !!c&&c.verified===true&&['employeeEmail','cycleKey'].every(k=>typeof c.fields?.[k]==='string'&&c.fields[k])&&Object.keys(c.fields).every(k=>k in assignmentState.values)&&previewFields.every(k=>typeof c.preview?.[k]==='string'&&c.preview[k])&&['assessmentKey','status','createdItemCount'].every(k=>typeof c.created?.[k]==='string'&&c.created[k]);
@@ -13,8 +20,13 @@ function assignmentCount(v){return (typeof v==='number'||typeof v==='string'&&v.
 function assignmentAllowed(p){return !!p&&p.pilotCanAssign===true&&assignmentCount(p.expectedCount)>0&&['blockingCount','missingCUVersion','targetRubricIssues'].every(k=>assignmentCount(p[k])===0)&&assignmentCount(p.requirementCount)===assignmentCount(p.expectedCount)&&Array.isArray(p.blockers)&&p.blockers.length===0&&Array.isArray(p.issues)&&p.issues.length===0&&!!txt(p.employee)&&!!txt(p.profile);}
 function assignmentReset(){Object.assign(assignmentState,{values:{employeeEmail:'',cycleKey:''},preview:null,result:null,message:'',busy:false});}
 function assignmentSection(){
+ const cycles=assignmentCycles();
+ if(!assignmentSelectedCycle()){
+  assignmentState.values.cycleKey=cycles.length===1?cycles[0].cycleKey:'';
+  assignmentState.preview=null;
+ }
  const s=assignmentState,ready=assignmentReady(),disabled=s.busy||state.demo||!ready;
- return `<section class="card assignment-card" aria-labelledby="assignTitle"><div class="section-head"><h2 id="assignTitle">Assign Assessment</h2>${statusBadge(s.busy?'IN_PROGRESS':'NOT_STARTED',s.busy?'Checking assignment':'Preview before creating')}</div><p class="muted">Enter an employee in your authorized scope and a cycle. The server resolves the approved profile and checks readiness for this pilot assignment.</p>${!ready?'<div class="preview-note">Assignment connection pending · Verified request and readiness field mappings are still required. Live assignment is unavailable.</div>':''}${state.demo?'<p class="muted small">Role-play does not create live assignments.</p>':''}<form id="liveAssignmentForm"><fieldset ${disabled?'disabled':''}><label for="assignEmployee">Employee email (in your scope)</label><input id="assignEmployee" name="employeeEmail" type="email" required value="${esc(s.values.employeeEmail)}"><label for="assignCycle">Cycle key</label><input id="assignCycle" name="cycleKey" required value="${esc(s.values.cycleKey)}"><div class="assignment-actions"><button id="previewAssignment" type="submit">Preview readiness</button><button id="createAssignment" type="button" class="primary" ${!assignmentAllowed(s.preview)?'disabled':''}>Create Assignment</button></div></fieldset></form><div id="assignmentOutcome" aria-live="polite">${s.preview?`<dl class="assignment-readiness">${previewFields.map(k=>`<div><dt>${esc(({employee:'Employee email',employeeName:'Employee',profile:'Profile version',trackKey:'Track',jobGradeCode:'Job grade',cycleStatus:'Cycle status',profileStatus:'Profile status',requirementCount:'Requirements',expectedCount:'Expected items',blockingCount:'Blocking count',missingCUVersion:'Missing CUVersion',targetRubricIssues:'Target rubric issues',pilotCanAssign:'pilotCanAssign'})[k])}</dt><dd>${esc(typeof s.preview[k]==='object'?JSON.stringify(s.preview[k]):s.preview[k]??'Unavailable')}</dd></div>`).join('')}</dl>${s.preview.blockers?.length?'<h3>Blocking requirements</h3><ul>'+s.preview.blockers.map(b=>'<li>'+esc(b.competencyName)+' · '+esc(b.matchStatus)+' · '+esc(b.applicability)+'</li>').join('')+'</ul>':''}${s.preview.issues?.length?'<h3>Content readiness issues</h3><ul>'+s.preview.issues.map(i=>'<li>'+esc(i.competencyName)+' · '+esc(i.issue)+'</li>').join('')+'</ul>':''}`:''}${s.result?`<p>${statusBadge(s.result.status)} <b>AssessmentKey:</b> ${esc(s.result.assessmentKey)} · <b>createdItemCount:</b> ${esc(s.result.createdItemCount)}</p>`:''}${s.message?`<p class="assignment-message">${esc(s.message)}</p>`:''}</div></section>`;
+ return `<section class="card assignment-card" aria-labelledby="assignTitle"><div class="section-head"><h2 id="assignTitle">Assign Assessment</h2>${statusBadge(s.busy?'IN_PROGRESS':'NOT_STARTED',s.busy?'Checking assignment':'Preview before creating')}</div><p class="muted">เลือกรอบประเมิน ระบุพนักงาน แล้วกดตรวจความพร้อม เมื่อผ่านเงื่อนไขจึงสร้างแบบประเมินได้</p>${!ready?'<div class="preview-note">Assignment connection pending · Verified request and readiness field mappings are still required. Live assignment is unavailable.</div>':''}${state.demo?'<p class="muted small">Role-play does not create live assignments.</p>':''}<form id="liveAssignmentForm"><fieldset ${disabled?'disabled':''}><label for="assignCycle">1. รอบประเมิน</label><select id="assignCycle" name="cycleKey" required ${!cycles.length?'disabled':''}>${cycles.length!==1?'<option value="">'+(cycles.length?'เลือกรอบประเมิน':'ยังไม่มีรอบประเมินที่เปิดให้ใช้งาน')+'</option>':''}${cycles.map(c=>`<option value="${esc(c.cycleKey)}" ${s.values.cycleKey===c.cycleKey?'selected':''}>${esc(c.label)}</option>`).join('')}</select><label for="assignEmployee">2. อีเมลพนักงานในความดูแล</label><input id="assignEmployee" name="employeeEmail" type="email" required value="${esc(s.values.employeeEmail)}"><div class="assignment-actions"><button id="previewAssignment" type="submit" ${!assignmentSelectedCycle()?'disabled':''}>ตรวจความพร้อม</button><button id="createAssignment" type="button" class="primary" ${!assignmentSelectedCycle()||!assignmentAllowed(s.preview)?'disabled':''}>สร้างแบบประเมิน</button></div></fieldset></form><div id="assignmentOutcome" aria-live="polite">${s.preview?`<dl class="assignment-readiness">${previewFields.map(k=>`<div><dt>${esc(({employee:'Employee email',employeeName:'Employee',profile:'Profile version',trackKey:'Track',jobGradeCode:'Job grade',cycleStatus:'Cycle status',profileStatus:'Profile status',requirementCount:'Requirements',expectedCount:'Expected items',blockingCount:'Blocking count',missingCUVersion:'Missing CUVersion',targetRubricIssues:'Target rubric issues',pilotCanAssign:'pilotCanAssign'})[k])}</dt><dd>${esc(typeof s.preview[k]==='object'?JSON.stringify(s.preview[k]):s.preview[k]??'Unavailable')}</dd></div>`).join('')}</dl>${s.preview.blockers?.length?'<h3>Blocking requirements</h3><ul>'+s.preview.blockers.map(b=>'<li>'+esc(b.competencyName)+' · '+esc(b.matchStatus)+' · '+esc(b.applicability)+'</li>').join('')+'</ul>':''}${s.preview.issues?.length?'<h3>Content readiness issues</h3><ul>'+s.preview.issues.map(i=>'<li>'+esc(i.competencyName)+' · '+esc(i.issue)+'</li>').join('')+'</ul>':''}`:''}${s.result?`<p>${statusBadge(s.result.status)} <b>AssessmentKey:</b> ${esc(s.result.assessmentKey)} · <b>createdItemCount:</b> ${esc(s.result.createdItemCount)}</p>`:''}${s.message?`<p class="assignment-message">${esc(s.message)}</p>`:''}</div></section>`;
 }
 function assignmentRender(){if(state.page==='manager'&&isManager())managerPage();}
 async function assignmentRequest(action,values){
@@ -29,6 +41,7 @@ async function runAssignment(create=false){
  const s=assignmentState;
  if(s.busy||workspaceBusy||state.demo||!isManager()||!state.verified||!assignmentReady()||!sessionValid())return;
  if(create&&!assignmentAllowed(s.preview))return;
+ if(!assignmentSelectedCycle())return;
  if(!$('liveAssignmentForm')?.reportValidity())return;
  const generation=state.generation,values={...s.values};s.preview=null;s.result=null;s.message='';s.busy=true;workspaceBusy=true;assignmentRender();
  try{
@@ -38,7 +51,7 @@ async function runAssignment(create=false){
   s.preview=p;
   if(txt(p.employee).toLowerCase()!==values.employeeEmail.toLowerCase()||txt(p.cycleKey)!==values.cycleKey){s.preview=null;throw new Error('Preview target/cycle does not match the request');}
   if(!assignmentAllowed(p)){s.message='Assignment blocked. Resolve readiness issues or incomplete readiness data, then preview again.';return;}
-  if(!create){s.message='Ready. Create Assignment will check readiness again before creating.';return;}
+  if(!create){s.message='พร้อมสร้างแบบประเมิน ระบบจะตรวจความพร้อมอีกครั้งก่อนสร้าง';return;}
   const r=await assignmentRequest('create_pilot_assignment',values);
   if(generation!==state.generation)return;
   s.preview=null;s.result=assignmentNormalize(r,assignmentMapping().created);
@@ -56,6 +69,8 @@ async function runAssignment(create=false){
   if(e.status===401)fail(e);
  }finally{if(generation===state.generation){s.busy=false;workspaceBusy=false;assignmentRender();}}
 }
-document.addEventListener('input',e=>{if(e.target.closest('#liveAssignmentForm')&&e.target.name in assignmentState.values){assignmentState.values[e.target.name]=e.target.value.trim();assignmentState.preview=null;assignmentState.result=null;assignmentState.message='Inputs changed. Preview readiness again.';const b=$('createAssignment');if(b)b.disabled=true;const out=$('assignmentOutcome');if(out)out.textContent=assignmentState.message;}});
+function assignmentInputChanged(e){if(e.target.closest('#liveAssignmentForm')&&e.target.name in assignmentState.values){assignmentState.values[e.target.name]=e.target.value.trim();assignmentState.preview=null;assignmentState.result=null;assignmentState.message='ข้อมูลเปลี่ยนแล้ว กรุณาตรวจความพร้อมอีกครั้ง';const b=$('createAssignment');if(b)b.disabled=true;const out=$('assignmentOutcome');if(out)out.textContent=assignmentState.message;const previewButton=$('previewAssignment');if(previewButton)previewButton.disabled=!assignmentSelectedCycle();}}
+document.addEventListener('input',assignmentInputChanged);
+document.addEventListener('change',assignmentInputChanged);
 document.addEventListener('submit',e=>{if(e.target.id==='liveAssignmentForm'){e.preventDefault();runAssignment();}});
 document.addEventListener('click',e=>{if(e.target.closest('#createAssignment'))runAssignment(true);});

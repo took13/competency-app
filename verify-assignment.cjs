@@ -1,11 +1,11 @@
 // Transport mocks reproduce owner-supplied v2 run-history shapes; no live writes.
 const fs=require('fs'),http=require('http'),assert=require('node:assert/strict'),{chromium}=require('playwright');
 const config={authApiUrl:'https://auth.test/api',employeeApiUrl:'https://employee.test/api',managerApiUrl:'https://manager.test/api',assessmentApiUrl:'https://assignment.test/api',developmentApiUrl:'https://development.test/api'};
-const sandbox={window:{}};require('vm').runInNewContext(fs.readFileSync(__dirname+'/config.js','utf8'),sandbox);const mapping=JSON.parse(JSON.stringify(sandbox.window.COMPETENCY_CONFIG.assignmentContract));
+const sandbox={window:{}};require('vm').runInNewContext(fs.readFileSync(__dirname+'/config.js','utf8'),sandbox);const mapping=JSON.parse(JSON.stringify(sandbox.window.COMPETENCY_CONFIG.assignmentContract));config.assessmentCycles=JSON.parse(JSON.stringify(sandbox.window.COMPETENCY_CONFIG.assessmentCycles));
 const server=http.createServer((q,r)=>{const f=q.url.split('?')[0].slice(1)||'index.html';if(f==='config.js'){r.setHeader('Content-Type','text/javascript');return r.end('window.COMPETENCY_CONFIG='+JSON.stringify(config));}if(!['index.html','app.js','assignment.js','styles.css'].includes(f))return r.writeHead(404).end();r.setHeader('Content-Type',f.endsWith('.js')?'text/javascript':f.endsWith('.css')?'text/css':'text/html');r.end(fs.readFileSync(__dirname+'/'+f));});
 (async()=>{
  await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
- const page=await browser.newPage(),calls=[],errors=[];let preview={employeeEmail:'employee@example.test',employeeName:'<employee-name>',cycleKey:'FIXTURE-CYCLE',profileVersionKey:'ETM_2026_V1_ETM_PI_JR_7_8_DRAFT1',trackKey:'ETM_PI',jobGradeCode:'JR_7_8',cycleStatus:'DRAFT',profileStatus:'DRAFT',expectedCUCount:'12',requirementCount:'12',blockingCount:'0',contentReadiness:{missingCUVersionCount:'0',targetRubricIssueCount:'0',issues:[]},blockers:[],pilotCanAssign:'True',productionCanAssign:'False',canAssign:'False'},createStatus=201,conflict='Pilot assignment is not ready for creation',hold=null;
+ const page=await browser.newPage(),calls=[],errors=[];let preview={employeeEmail:'employee@example.test',employeeName:'<employee-name>',cycleKey:'ETM_UI_DEMO_2026',profileVersionKey:'ETM_2026_V1_ETM_PI_JR_7_8_DRAFT1',trackKey:'ETM_PI',jobGradeCode:'JR_7_8',cycleStatus:'DRAFT',profileStatus:'DRAFT',expectedCUCount:'12',requirementCount:'12',blockingCount:'0',contentReadiness:{missingCUVersionCount:'0',targetRubricIssueCount:'0',issues:[]},blockers:[],pilotCanAssign:'True',productionCanAssign:'False',canAssign:'False'},createStatus=201,conflict='Pilot assignment is not ready for creation',hold=null;
  page.on('pageerror',e=>errors.push(e.message));await page.route('https://**/*',async r=>{if(process.env.ASSIGN_SITE&&new URL(r.request().url()).origin===new URL(process.env.ASSIGN_SITE).origin){if(new URL(r.request().url()).pathname==='/config.js')return r.fulfill({contentType:'text/javascript',body:'window.COMPETENCY_CONFIG='+JSON.stringify(config)});return r.continue();}const b=r.request().postDataJSON();calls.push(b);if(hold)await hold;if(b.action==='preview_assignment')return r.fulfill({json:{success:true,preview}});if(b.action==='create_pilot_assignment')return r.fulfill({status:createStatus,json:createStatus===201?{success:true,mode:'PILOT',assessmentKey:'PILOT|NEW-CYCLE|employee@example.test|R1',status:'ASSIGNED',employeeEmail:'employee@example.test',profileVersionKey:preview.profileVersionKey,expectedItemCount:'12',createdItemCount:'12'}:{success:false,message:conflict,...(conflict==='Pilot assessment already exists'?{assessmentKey:'PILOT|NEW-CYCLE|employee@example.test|R1'}:{})}});if(b.action==='get_my_assignments')return r.fulfill({json:{success:true,assignments:[]}});return r.abort();});
  try{
  await page.goto(process.env.ASSIGN_SITE||`http://127.0.0.1:${server.address().port}`);
@@ -13,12 +13,22 @@ const server=http.createServer((q,r)=>{const f=q.url.split('?')[0].slice(1)||'in
  await page.evaluate(()=>{sessionStorage.setItem(K.token,'fixture-token');sessionStorage.setItem(K.expires,new Date(Date.now()+3600000).toISOString());state.verified=true;state.profile={appRole:'MANAGER',employeeName:'Fixture Manager'};state.page='manager';render();});
  assert(await page.locator('#previewAssignment').isDisabled());assert(await page.locator('#createAssignment').isDisabled());
  await page.evaluate(m=>{window.COMPETENCY_CONFIG.assignmentContract=m;managerPage();},mapping);
- for(const [id,v] of [['assignEmployee','employee@example.test'],['assignCycle','FIXTURE-CYCLE']])await page.locator('#'+id).fill(v);
+ assert.equal(await page.locator('#assignCycle').inputValue(),'ETM_UI_DEMO_2026');
+ assert.equal(await page.locator('#assignCycle').evaluate(e=>e.tagName),'SELECT');
+ assert.match(await page.locator('#assignCycle option:checked').textContent(),/รอบทดลองประเมิน ETM 2026 — PILOT/);
+ assert.equal(await page.locator('input[name=cycleKey]').count(),0);
+ await page.evaluate(()=>{window.COMPETENCY_CONFIG.assessmentCycles=[];managerPage();});
+ assert(await page.locator('#previewAssignment').isDisabled());
+ await page.evaluate(c=>{window.COMPETENCY_CONFIG.assessmentCycles=[...c,{label:'Second fixture cycle',cycleKey:'NEW-CYCLE',type:'PILOT',active:true},{label:'Inactive',cycleKey:'OFF',type:'PILOT',active:false}];managerPage();},config.assessmentCycles);
+ assert.equal(await page.locator('#assignCycle').inputValue(),'');assert(await page.locator('#previewAssignment').isDisabled());
+ assert.equal(await page.locator('#assignCycle option[value=OFF]').count(),0);
+ await page.locator('#assignCycle').selectOption('ETM_UI_DEMO_2026');
+ await page.locator('#assignEmployee').fill('employee@example.test');
  const previewClick=async()=>{await page.locator('#previewAssignment').click();await page.waitForFunction(()=>!assignmentState.busy);};
  assert(await page.locator('#createAssignment').isDisabled());
  for(const patch of [{pilotCanAssign:'true'},{blockingCount:1},{contentReadiness:{...preview.contentReadiness,missingCUVersionCount:'2'}},{contentReadiness:{...preview.contentReadiness,targetRubricIssueCount:'1'}},{expectedCUCount:0},{blockingCount:undefined},{expectedCUCount:'bad'},{blockers:[{competencyName:'Blocked CU',matchStatus:'NEEDS_NAME_CONFIRMATION'}]},{requirementCount:'11'}]){const saved=preview;preview={...saved,...patch};await previewClick();assert(await page.locator('#createAssignment').isDisabled());preview=saved;}
  await previewClick();assert(await page.locator('#createAssignment').isEnabled());
- preview.cycleKey='NEW-CYCLE';await page.locator('#assignCycle').fill('NEW-CYCLE');assert(await page.locator('#createAssignment').isDisabled());await previewClick();
+ preview.cycleKey='NEW-CYCLE';await page.locator('#assignCycle').selectOption('NEW-CYCLE');assert(await page.locator('#createAssignment').isDisabled());await previewClick();
  // Readiness can change between displayed preview and create: no write allowed.
  preview.blockingCount=1;await page.locator('#createAssignment').click();await page.waitForFunction(()=>!assignmentState.busy);assert.equal(calls.filter(x=>x.action==='create_pilot_assignment').length,0);
  preview.blockingCount=0;await previewClick();createStatus=409;await page.locator('#createAssignment').click();await page.waitForFunction(()=>!assignmentState.busy);assert.match(await page.locator('#assignmentOutcome').textContent(),/409/);assert(await page.locator('#createAssignment').isDisabled());

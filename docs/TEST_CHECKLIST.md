@@ -85,3 +85,14 @@ Run `node verify-assignment.cjs` with Playwright available. This mocks the owner
 - [ ] Live 401, timeout/ambiguous write and recovery from partial PREPARING header.
 
 Published config now enables the verified v2 mapping. Browser checks pass with contract-shaped mocks; authenticated live assignment acceptance remains unchecked.
+
+## Confirmed assessment cycle selector (2026-10-26)
+
+- [x] Friendly Thai round label and SELECT control; no editable raw-key field.
+- [x] Published confirmed ETM round automatically selected when it is the only round.
+- [x] Empty configuration disables readiness; multiple active rounds require explicit selection; inactive rounds excluded.
+- [x] Round change invalidates preview and disables creation; fresh readiness required.
+- [x] Existing request field names, readiness rules, fresh preview, 409 handling and role boundaries preserved.
+- [x] Assignment browser checks at 320/390/768/1440px with mocked APIs; no live writes.
+
+Future backend source must supply the same normalized cycle entries through the source adapter after its contract is verified. Config is a confirmed pilot list, not proof of manager authorization; backend scope checks remain authoritative.
