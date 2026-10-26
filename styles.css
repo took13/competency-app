@@ -20,3 +20,6 @@ nav button.active{box-shadow:inset 3px 0 var(--brand-sky)}
 .preview-note{border-left-color:var(--brand-sky)}
 .brand small{letter-spacing:1.7px}
 @media(max-width:700px){.hero:after{right:-285px}.hero:before{right:-245px}.page-heading>button{white-space:nowrap}}
+
+/* Public landing stays clean even before JavaScript initializes. */
+.public-brand{display:none}.signed-out .shell{display:block}.signed-out aside,.signed-out header,.signed-out #roleTools{display:none!important}.signed-out .public-brand{display:flex;align-items:center;justify-content:center;gap:12px;padding:38px 18px 0;font-size:21px;font-weight:650}.public-brand small{display:block;font-size:10px;letter-spacing:2px;color:var(--muted)}.signed-out main{padding:24px 18px 60px}.signed-out .login{margin:4vh auto}.signed-out .skip{left:16px}.signed-out .toast{left:50%}

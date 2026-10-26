@@ -20,7 +20,20 @@ Run `node verify.cjs` with Playwright available. Tests use mocked transport; the
 - [x] Sign out clears token and restores configured endpoints.
 - [x] No uncaught browser JavaScript errors.
 
-## Hosting deployment acceptance
+## UX-12–UX-15 incremental cleanup
+
+Run `node verify-ux.cjs` with Playwright available. All authentication responses are mocked; no live OTP or backend writes are sent. Set `UX_SITE` to the Azure origin to repeat these checks against hosted UI assets with mocked APIs.
+
+- [x] UX-12: clean real sign-in is the default; shell/navigation are hidden in static HTML and until session verification finishes.
+- [x] UX-13: Connect button, endpoint dialog, inputs and connection handlers are removed; URLs load from config.
+- [x] UX-14: profile, session tag, Sign out and server-role navigation appear only after successful profile verification.
+- [x] UX-15: initial HTML has no seeded identity; sign-out, demo exit, rejected profile and expired sessions clear displayed identity and session data.
+- [x] Cached sessions revalidate with the server before displaying identity; cached user/role never controls navigation.
+- [x] Explicit demo entry retains four-user role-play; leaving demo removes its identity and toolbar.
+- [x] Desktop and 390px login checked; original 15 browser regression groups still pass.
+- [x] Manager/Assignment/Development live gates remain unchanged; config, backend contracts and Actions workflows are outside this change.
+
+## Hosting deployment acceptance (verify for delivered commit)
 
 - [ ] Workflow for the delivered commit concludes success.
 - [ ] Hosted root shows UI v2 sign-in; app.js, styles.css and config.js return 200.
