@@ -18,7 +18,19 @@ POST JSON; protected actions include `sessionToken` in the body. Response succes
 
 Editable assessment states: ASSIGNED, IN_PROGRESS. Saved item state: COMPLETED. Submission requires nonzero items, every item saved, no pending writes and no dirty drafts. The backend must independently validate these rules.
 
-## Additional contracts — exact fields still required
+## Assignment v2 — guard implemented, live mapping blocked (2026-10-26)
+
+The requested incremental Manager Workspace UI is implemented for MANAGER/ADMIN. The user and retrieved planning chat confirm `preview_assignment`, `create_pilot_assignment`, deterministic PILOT assignments, duplicate 409, and backend PREPARING → ASSIGNED only after item-count integrity. The accessible chat preview contains no complete successful request/response JSON; repo config still has no verified assignment mapping. These lifecycle statements are owner-provided evidence, not a new backend test.
+
+**Live assignment remains disabled.** No remote request field or readiness response path has been inferred. Provide sanitized passing requests/responses (including employee scope/profile reference resolution and 409) before populating `assignmentContract`. The existing `assignmentCreate` generic mapping can no longer bypass preview via Administration.
+
+`assignment.js` uses a separate explicit adapter: `assignmentContract = {verified, fields, preview, created}`. `fields` maps local input names employeeEmail/cycleKey/profileKey to verified request fields. `preview` maps local display/guard names employee, profile, expectedCount, blockingCount, missingCUVersion, targetRubricIssues, pilotCanAssign to dotted response paths. `created` maps local assessmentKey/status/createdItemCount to dotted response paths. **These are local adapter names, not claims about backend field names.** Tests use conspicuous fixture-prefixed server fields; never copy them to config. If actual scope/profile resolution needs other inputs or readiness returns issue arrays instead of counts, update and test the explicit adapter against that evidence before enablement.
+
+The adapter sends only mapped inputs plus shared action/sessionToken. Actions are fixed to the two owner-confirmed names. A fresh preview runs both on Preview and again on Create with frozen identical inputs. Create requires literal boolean true, positive integer expected count, all three blocker counts explicitly zero, and employee/profile identity present. Missing, malformed or stale preview data fails closed. Editing input invalidates readiness; pending operations prevent repeated writes and role changes.
+
+409, 403, expired sessions, failures and uncertain timeouts are surfaced without automatic retry. Creation displays the returned key/status/count; only ASSIGNED plus expected count equality is reported as successful integrity. Browser does not generate deterministic keys, write header states, or repair partial PREPARING headers. Those remain backend responsibilities. The signed-in user’s assignment list and mapped manager queue are refreshed separately; refresh failure does not erase a successful creation result. The target employee must reload their own authenticated My Assessment; no cross-user session or push refresh is invented.
+
+## Other contracts — exact fields still required
 
 User identifies these existing APIs: Competency_Assessment_API_v2, Competency_Manager_API_v1, Competency_Development_API_v1. Their endpoints were found configured locally. Full verified Manager/assignment payloads and response examples were not available in the cached conversation or reference files inspected during this task.
 
@@ -51,7 +63,7 @@ contracts: {
 }
 ```
 
-Operations: managerQueue, managerAssessment, managerSave, managerConfirm, assessmentResult, developmentPlan, developmentCreate, developmentSave, assignmentCreate. `api` is manager, assessment or development. `fields` maps normalized input names to backend payload names; only mapped fields are sent. `response` selects a top-level response field, or omit it to return the full response.
+Operations: managerQueue, managerAssessment, managerSave, managerConfirm, assessmentResult, developmentPlan, developmentCreate, developmentSave. Assignment uses the separately guarded adapter above; assignmentCreate is no longer a write entry point. `api` is manager, assessment or development. `fields` maps normalized input names to backend payload names; only mapped fields are sent. `response` selects a top-level response field, or omit it to return the full response.
 
 This adapter currently expects normalized shapes (including assessment items and plan/action shapes); if actual responses differ, implement an explicit normalization adapter and test it before enabling. A mapping alone is not evidence of compatibility.
 

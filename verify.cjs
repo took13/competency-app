@@ -3,7 +3,7 @@ const {chromium}=require('playwright');
 const root=__dirname,checks=[],errors=[];
 const fixture=JSON.parse(fs.readFileSync(path.join(root,'index.html'),'utf8').match(/id="fixture" type="application\/json">([\s\S]*?)<\/script>/)[1]);
 const testConfig={authApiUrl:'https://auth.test/api',employeeApiUrl:'https://employee.test/api',managerApiUrl:'https://manager.test/api',assessmentApiUrl:'https://assignment.test/api',developmentApiUrl:'https://development.test/api',contracts:{}};
-const server=http.createServer((q,r)=>{const p=q.url.split('?')[0];if(p==='/config.js'){r.setHeader('Content-Type','text/javascript');r.end('window.COMPETENCY_CONFIG='+JSON.stringify(testConfig));return;}const name=p==='/'?'index.html':p.slice(1);if(!['index.html','app.js','styles.css'].includes(name)){r.writeHead(404).end();return;}r.setHeader('Content-Type',name.endsWith('.js')?'text/javascript':name.endsWith('.css')?'text/css':'text/html; charset=utf-8');r.end(fs.readFileSync(path.join(root,name)));});
+const server=http.createServer((q,r)=>{const p=q.url.split('?')[0];if(p==='/config.js'){r.setHeader('Content-Type','text/javascript');r.end('window.COMPETENCY_CONFIG='+JSON.stringify(testConfig));return;}const name=p==='/'?'index.html':p.slice(1);if(!['index.html','app.js','assignment.js','styles.css'].includes(name)){r.writeHead(404).end();return;}r.setHeader('Content-Type',name.endsWith('.js')?'text/javascript':name.endsWith('.css')?'text/css':'text/html; charset=utf-8');r.end(fs.readFileSync(path.join(root,name)));});
 function pass(s){checks.push(s);console.log('PASS '+s);}
 (async()=>{
  await new Promise(r=>server.listen(0,'127.0.0.1',r));

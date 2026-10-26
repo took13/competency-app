@@ -1,0 +1,32 @@
+// Synthetic adapter fixtures prove UI guards only, NOT the live v2 contract.
+const fs=require('fs'),http=require('http'),assert=require('node:assert/strict'),{chromium}=require('playwright');
+const config={authApiUrl:'https://auth.test/api',employeeApiUrl:'https://employee.test/api',managerApiUrl:'https://manager.test/api',assessmentApiUrl:'https://assignment.test/api',developmentApiUrl:'https://development.test/api'};
+const mapping={verified:true,fields:{employeeEmail:'fixtureEmployee',cycleKey:'fixtureCycle',profileKey:'fixtureReference'},preview:Object.fromEntries(['employee','profile','expectedCount','blockingCount','missingCUVersion','targetRubricIssues','pilotCanAssign'].map(k=>[k,'fixture.'+k])),created:{assessmentKey:'fixture.key',status:'fixture.state',createdItemCount:'fixture.count'}};
+const server=http.createServer((q,r)=>{const f=q.url.split('?')[0].slice(1)||'index.html';if(f==='config.js'){r.setHeader('Content-Type','text/javascript');return r.end('window.COMPETENCY_CONFIG='+JSON.stringify(config));}if(!['index.html','app.js','assignment.js','styles.css'].includes(f))return r.writeHead(404).end();r.setHeader('Content-Type',f.endsWith('.js')?'text/javascript':f.endsWith('.css')?'text/css':'text/html');r.end(fs.readFileSync(__dirname+'/'+f));});
+(async()=>{
+ await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
+ const page=await browser.newPage(),calls=[],errors=[];let preview={employee:'Scoped fixture employee',profile:'Fixture profile',expectedCount:'12',blockingCount:0,missingCUVersion:0,targetRubricIssues:0,pilotCanAssign:true},createStatus=200,hold=null;
+ page.on('pageerror',e=>errors.push(e.message));await page.route('https://**/*',async r=>{const b=r.request().postDataJSON();calls.push(b);if(hold)await hold;if(b.action==='preview_assignment')return r.fulfill({json:{success:true,fixture:preview}});if(b.action==='create_pilot_assignment')return r.fulfill({status:createStatus,json:createStatus===200?{success:true,fixture:{key:'FIXTURE-PILOT',state:'ASSIGNED',count:12}}:{success:false,message:'Duplicate'}});if(b.action==='get_my_assignments')return r.fulfill({json:{success:true,assignments:[]}});return r.abort();});
+ try{
+ await page.goto(process.env.ASSIGN_SITE||`http://127.0.0.1:${server.address().port}`);
+ // Avoid OTP mail: explicitly set a fixture verified session for isolated UI tests.
+ await page.evaluate(()=>{sessionStorage.setItem(K.token,'fixture-token');sessionStorage.setItem(K.expires,new Date(Date.now()+3600000).toISOString());state.verified=true;state.profile={appRole:'MANAGER',employeeName:'Fixture Manager'};state.page='manager';render();});
+ assert(await page.locator('#previewAssignment').isDisabled());assert(await page.locator('#createAssignment').isDisabled());
+ await page.evaluate(m=>{window.COMPETENCY_CONFIG.assignmentContract=m;managerPage();},mapping);
+ for(const [id,v] of [['assignEmployee','employee@example.test'],['assignCycle','FIXTURE-CYCLE'],['assignProfile','FIXTURE-PROFILE']])await page.locator('#'+id).fill(v);
+ const previewClick=async()=>{await page.locator('#previewAssignment').click();await page.waitForFunction(()=>!assignmentState.busy);};
+ assert(await page.locator('#createAssignment').isDisabled());
+ for(const patch of [{pilotCanAssign:'true'},{blockingCount:1},{missingCUVersion:1},{targetRubricIssues:1},{expectedCount:0},{blockingCount:undefined},{expectedCount:'bad'}]){const saved=preview;preview={...saved,...patch};await previewClick();assert(await page.locator('#createAssignment').isDisabled());preview=saved;}
+ await previewClick();assert(await page.locator('#createAssignment').isEnabled());
+ await page.locator('#assignCycle').fill('NEW-CYCLE');assert(await page.locator('#createAssignment').isDisabled());await previewClick();
+ // Readiness can change between displayed preview and create: no write allowed.
+ preview.blockingCount=1;await page.locator('#createAssignment').click();await page.waitForFunction(()=>!assignmentState.busy);assert.equal(calls.filter(x=>x.action==='create_pilot_assignment').length,0);
+ preview.blockingCount=0;await previewClick();createStatus=409;await page.locator('#createAssignment').click();await page.waitForFunction(()=>!assignmentState.busy);assert.match(await page.locator('#assignmentOutcome').textContent(),/409/);assert(await page.locator('#createAssignment').isDisabled());
+ await previewClick();createStatus=200;let release;hold=new Promise(r=>release=r);await page.locator('#createAssignment').click();assert(await page.locator('#createAssignment').isDisabled());await page.evaluate(()=>runAssignment(true));release();hold=null;await page.waitForFunction(()=>!assignmentState.busy);assert.match(await page.locator('#assignmentOutcome').textContent(),/FIXTURE-PILOT/);assert.match(await page.locator('#assignmentOutcome').textContent(),/createdItemCount: 12/);assert.equal(calls.filter(x=>x.action==='create_pilot_assignment').length,2);assert(calls.some(x=>x.action==='get_my_assignments'));
+ for(let i=0;i<calls.length;i++)if(calls[i].action==='create_pilot_assignment'){assert.equal(calls[i-1].action,'preview_assignment');assert.deepEqual({...calls[i],action:'preview_assignment'},calls[i-1]);assert.equal(calls[i].fixtureCycle,'NEW-CYCLE');assert.deepEqual(Object.keys(calls[i]).sort(),['action','sessionToken','fixtureEmployee','fixtureCycle','fixtureReference'].sort());}
+ for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:900});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
+ fs.mkdirSync(__dirname+'/test-results',{recursive:true});await page.screenshot({path:__dirname+'/test-results/assignment.png',fullPage:true});
+ await page.evaluate(()=>{state.profile.appRole='EMPLOYEE';state.page='manager';render();});assert.equal(await page.locator('#liveAssignmentForm').count(),0);const before=calls.length;await page.evaluate(()=>runAssignment(true));assert.equal(calls.length,before);assert.deepEqual(errors,[]);
+ console.log('PASS assignment: missing mapping, strict boolean/count guards, changed inputs, fresh preview, blockers, 409, duplicate click, success/count, refresh, mapped payload, role boundary, responsive layout. Synthetic contract only; no live API calls.');
+ }finally{await browser.close();server.close();}
+})().catch(e=>{console.error(e);process.exitCode=1;server.close();});

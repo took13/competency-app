@@ -39,3 +39,7 @@ Drafts remain in tab memory. Reloading or closing the tab loses unsaved drafts; 
 ## Deploy
 
 Commit the root files to `main`; the existing Azure workflow publishes them. Verify the exact commit's workflow conclusion, then open `https://orange-forest-067e00310.1.azurestaticapps.net` and confirm the new UI and all three assets load. Follow `docs/TEST_CHECKLIST.md` for live UAT. A successful hosting deployment is not proof of live API lifecycle acceptance.
+
+## Assign Assessment increment
+
+Manager Workspace now contains a guarded Assign Assessment section for MANAGER/ADMIN. Preview/readiness/create and explicit duplicate handling are implemented, with a fresh preview required on Create. **Live assignment remains unavailable until sanitized successful v2 payloads and readiness paths are mapped.** No backend fields were guessed; `config.js` remains unchanged. See `docs/BACKEND_CONTRACTS.md`. Run `node verify-assignment.cjs` for the synthetic-adapter browser checks.
