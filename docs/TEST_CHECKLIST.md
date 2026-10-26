@@ -96,3 +96,17 @@ Published config now enables the verified v2 mapping. Browser checks pass with c
 - [x] Assignment browser checks at 320/390/768/1440px with mocked APIs; no live writes.
 
 Future backend source must supply the same normalized cycle entries through the source adapter after its contract is verified. Config is a confirmed pilot list, not proof of manager authorization; backend scope checks remain authoritative.
+
+## Manager live integration (2026-10-26)
+
+Published Manager mappings enable get_my_reviews, get_review_assessment, save_manager_review, confirm_assessment. Evidence and response limits are in BACKEND_CONTRACTS.md. Automated checks: node verify-manager.cjs (isolated mocked transport; no live writes).
+
+- [x] Browser regression: MANAGER/ADMIN auto-load, Refresh team re-fetch; no pending banner; EMPLOYEE role guard.
+- [x] Browser regression: evidence/target/self/validated levels and rubrics, numeric validatedLevel and exact four save fields, Agree & Save/Adjust reason, string counts, SUBMITTED until confirm, readback after save.
+- [x] Browser regression: nonempty expected/actual/validated count guard, confirmation queue removal, Confirmed this session count, sanitized HTTP errors, preserved scroll, 320/390/768/1440px.
+- [ ] Authenticated live read-only: Watchara sees authorized JR_7_8 SUBMITTED queue and opens assessment; ADMIN scope remains backend-controlled.
+- [ ] Owner live UAT writes: agree/adjust/save every item, confirm, then queue is empty/remaining reviews only. This release does not modify real review data for testing.
+- [ ] Live unknown-error branches and concurrent reviewer/state change UAT; exact missing error bodies are not assumed.
+
+Confirmed this session is not a historical KPI. Confirmed records are excluded by get_my_reviews; counts reset on session clear/reload.
+

@@ -6,5 +6,37 @@ window.COMPETENCY_CONFIG = {
   "assessmentApiUrl": "",
   "developmentApiUrl": "",
   "temporaryDemoOnly": true,
-  "contracts": {}
+  "contracts": {
+  "managerQueue": {
+    "api": "manager",
+    "action": "get_my_reviews",
+    "fields": {},
+    "response": "reviews"
+  },
+  "managerAssessment": {
+    "api": "manager",
+    "action": "get_review_assessment",
+    "fields": {
+      "assessmentKey": "assessmentKey"
+    },
+    "response": "assessment"
+  },
+  "managerSave": {
+    "api": "manager",
+    "action": "save_manager_review",
+    "fields": {
+      "assessmentKey": "assessmentKey",
+      "itemKey": "itemKey",
+      "managerLevel": "validatedLevel",
+      "managerComment": "managerComment"
+    }
+  },
+  "managerConfirm": {
+    "api": "manager",
+    "action": "confirm_assessment",
+    "fields": {
+      "assessmentKey": "assessmentKey"
+    }
+  }
+}
 };

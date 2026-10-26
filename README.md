@@ -7,14 +7,14 @@ Static, root-hosted application for the existing `took13/competency-app` Azure S
 - Task-oriented employee Home, My Assessment and My Development.
 - OTP/profile/assignment/self-assessment integration using the evidenced Auth and Employee contracts.
 - Four explicit role-play users: Pratheep MANAGER (`took13@hotmail.com`), Watchara EMPLOYEE SR_9_10 (`watchara.p@gpscgroup.com`), Kannattha EMPLOYEE JR_7_8 (`tooksignin@gmail.com`), Thawatchai EMPLOYEE JR_7_8 (`gpscrpauser@gpscgroup.com`).
-- Role-play manager queue, Agree & Save, Adjust Level with reason, confirmation, reviewer-created DRAFT development plans and PLANNED actions. Employees view plans without editing them.
+- Live and role-play manager queue, Agree & Save, Adjust Level with reason, confirmation, reviewer-created DRAFT development plans and PLANNED actions. Employees view plans without editing them.
 - Administration shell with assignment form and governance boundaries. Preview never changes a user's actual role.
 - Floating bottom toast, stable employee scroll after save, retained evidence after level changes, expandable definitions, saved-progress gating and confirmation dialogs.
 - Manager overview metrics derived from loaded/sample assessments; no fabricated live executive KPIs.
 
 ## Current integration boundary — read before live pilot
 
-All five endpoint URLs are configured. **Auth and Employee are implemented against locally available request/response evidence. Manager review and Development live operations remain disabled until their exact payload/response mappings are supplied and verified. Assignment v2 is enabled using owner-supplied run-history evidence.** The referenced conversation preview does not contain those complete contracts. Endpoint availability alone is not a verified contract.
+All five endpoint URLs are configured. **Auth and Employee are implemented against locally available request/response evidence. Manager review is live-enabled against owner-supplied run-history evidence; Development live operations remain disabled until their exact payload/response mappings are supplied and verified. Assignment v2 is enabled using owner-supplied run-history evidence.** The referenced conversation preview does not contain those complete contracts. Endpoint availability alone is not a verified contract.
 
 The complete role-play experience works without live API calls. It uses a draft ETM catalog shared across sample profiles solely to demonstrate UX. Watchara's real SR targets must come from the backend; sample targets are not an approved SR requirement mapping. Sample ratings and team counts are clearly labeled. Role-play changes stay in memory and reset when the page reloads.
 

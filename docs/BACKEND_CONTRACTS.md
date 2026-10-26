@@ -45,11 +45,32 @@ Backend key is concat(PILOT|, cycleKey, |, lowercase employeeEmail, |R1). R1 is 
 
 All Terminate actions use Succeeded, including HTTP 409 branches. Workflow-run success is not API success. Use actual HTTP status/body. Responses 0–10 and 14 exist but their exact bodies were not extracted (session, permission, target/cycle/profile and snapshot errors); UI handles HTTP errors without inventing those response contracts.
 
-config.js now contains the verified assignmentContract mapping. Local adapter names are not extra request fields. The legacy assignmentCreate entry point cannot bypass preview. Success refreshes the signed-in user's assignment list and manager queue if its separate mapping is available. Manager queue mapping is still pending; target employees reload their own authenticated My Assessment. No cross-user session or push refresh is assumed.
+config.js now contains the verified assignmentContract mapping. Local adapter names are not extra request fields. The legacy assignmentCreate entry point cannot bypass preview. Success refreshes the signed-in user's assignment list and manager queue if its separate mapping is available. Manager queue mapping is live-enabled; target employees reload their own authenticated My Assessment. No cross-user session or push refresh is assumed.
 
-## Other contracts — exact fields still required
+## Manager v1 — live-enabled (2026-10-26)
 
-User identifies these existing APIs: Competency_Assessment_API_v2, Competency_Manager_API_v1, Competency_Development_API_v1. Their endpoints were found configured locally. Full verified Manager/assignment payloads and response examples were not available in the cached conversation or reference files inspected during this task.
+Evidence: owner-supplied sanitized Power Automate run-history samples from 22–23 October, extracted 26 October 2026. The observed 12-item lifecycle completed all four actions. This evidence is distinct from this release's mocked browser checks; no real review data is written during deployment validation.
+
+All requests POST JSON with action and sessionToken using the existing manager endpoint. No flow or backend contract changes.
+
+| action | Additional request fields | Verified response |
+|---|---|---|
+| get_my_reviews | none | success, count (string), reviews[] |
+| get_review_assessment | assessmentKey | success, assessment including items[] |
+| save_manager_review | assessmentKey, itemKey, validatedLevel (JSON number 1–5), managerComment | success, message, assessmentKey, itemKey, validatedLevel (string), validatedItemCount (string), totalItemCount (string) |
+| confirm_assessment | assessmentKey | success, message, assessmentKey, status CONFIRMED, validatedItemCount (string), expectedItemCount (string), confirmedAt |
+
+Queue rows: assessmentKey, employeeName, employeeEmail, cycleKey, profileVersionKey, reviewerEmail, status, submittedAt, expectedItemCount (number). Queue is active SUBMITTED only, authorized by backend reviewer email (case-insensitive) or ADMIN. UI does not filter by caller email or infer scope from sample identities. Confirmed assessments disappear from queue. Assessments loaded/Awaiting review show the current queue; Confirmed this session counts only successful confirmations observed in this tab, resets on sign-out/reload, and is not a historical total.
+
+Assessment fields: assessmentKey, employeeName, employeeEmail, profileVersionKey, status, submittedAt, expectedItemCount/actualItemCount (strings), items. Item fields: itemKey, cuKey, competencyName, competencyGroup, generalStatement, level1–level5, targetLevel, displayOrder, selfLevel, selfEvidence, validatedLevel, managerComment, itemStatus. Unset values are null. Numeric response strings are normalized for validation. The explicit adapter aliases validatedLevel to the existing UI managerLevel; only validatedLevel is sent on the wire. ItemStatus COMPLETED describes employee completion and does not establish manager validation.
+
+MANAGER/ADMIN profile entry automatically loads get_my_reviews. Refresh team re-fetches. Opening a row fetches get_review_assessment. Agree & Save sends the employee self level as a number and an empty managerComment; Adjust Level requires a reason. Each successful save checks returned keys/level/counts and reads back the assessment. No UNDER_REVIEW status is synthesized: live editing is SUBMITTED only. Confirm requires nonzero expectedItemCount == actualItemCount == loaded item length and every item validated at integer 1–5. Save counts must match the authoritative readback. After confirm, re-fetch the queue. No implicit retries for writes.
+
+Observed/definition errors: save non-SUBMITTED 409 'Assessment is not editable for manager review'; confirm non-SUBMITTED 409 'Assessment is not ready for confirmation'; invalid level 400 'validatedLevel must be an integer from 1 to 5'. Exact bodies/status for Items Not Fully Validated, Review Not Found/Forbidden and Review Item Not Found remain unavailable; no invented error contracts. UI uses safe actionable messages for HTTP/transport errors, never raw server text, endpoint URLs or tokens. 401 ends session; 403/409 instruct refresh/reopen. Ambiguous writes require readback before retry. Backend authorization and completeness remain authoritative.
+
+## Remaining contracts — exact fields still required
+
+User identifies these existing APIs: Competency_Assessment_API_v2, Competency_Manager_API_v1, Competency_Development_API_v1. Their endpoints were found configured locally. Manager and assignment evidence is recorded above. Development still requires complete verified request/response mappings.
 
 The related chat “สรุปการทดสอบโฟลว์” supplies partial Development implementation evidence:
 
@@ -62,11 +83,11 @@ The related chat “สรุปการทดสอบโฟลว์” suppl
 - `get_assessment_result` precedes `create_development_plan`.
 - That evidence says these Development actions had not yet been run at that time. No later live acceptance evidence was retrieved.
 
-Live buttons remain disabled until verified mappings are configured. Role-play uses the confirmed/DRAFT/PLANNED lifecycle and never posts sample keys to an API.
+Development live buttons remain disabled until verified mappings are configured. Role-play uses the confirmed/DRAFT/PLANNED lifecycle and never posts sample keys to an API.
 
 ## Mapping format
 
-`config.js` has `contracts: {}`. Add only mappings supported by actual request/response examples. Each operation maps normalized UI values to server fields:
+`config.js` contains the four verified Manager mappings. Add only mappings supported by actual request/response examples. Each operation maps normalized UI values to server fields:
 
 ```js
 contracts: {
