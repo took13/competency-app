@@ -68,51 +68,33 @@ MANAGER/ADMIN profile entry automatically loads get_my_reviews. Refresh team re-
 
 Observed/definition errors: save non-SUBMITTED 409 'Assessment is not editable for manager review'; confirm non-SUBMITTED 409 'Assessment is not ready for confirmation'; invalid level 400 'validatedLevel must be an integer from 1 to 5'. Exact bodies/status for Items Not Fully Validated, Review Not Found/Forbidden and Review Item Not Found remain unavailable; no invented error contracts. UI uses safe actionable messages for HTTP/transport errors, never raw server text, endpoint URLs or tokens. 401 ends session; 403/409 instruct refresh/reopen. Ambiguous writes require readback before retry. Backend authorization and completeness remain authoritative.
 
-## Remaining contracts — exact fields still required
+## Development v1 — live-enabled (2026-10-26)
 
-User identifies these existing APIs: Competency_Assessment_API_v2, Competency_Manager_API_v1, Competency_Development_API_v1. Their endpoints were found configured locally. Manager and assignment evidence is recorded above. Development still requires complete verified request/response mappings.
+Evidence: owner-supplied sanitized Power Automate run history, extracted 2026-10-26. One confirmed assessment had 12 items/3 gaps; create 201, duplicate create 409, three saves, start, three completions and final get COMPLETED were observed (23–24 October). This release uses those request/response shapes; browser tests mock them and do not perform a new authenticated live acceptance run.
 
-The related chat “สรุปการทดสอบโฟลว์” supplies partial Development implementation evidence:
+All six operations POST to the existing Development API with action and sessionToken. Only these additional fields are sent:
 
-- Shared plan lookup and access guard before get/save.
-- `get_development_plan` returns a plan and ordered actions.
-- `save_development_action` requires ADMIN or Reviewer and plan state DRAFT; updates action status to PLANNED.
-- Trigger fields include actionKey, actionType, developmentAction, successMeasure, ownerEmail, targetDate.
-- actionType must be one of seven approved values; those values were not provided in the retrieved evidence.
-- Response counts plannedActionCount and totalActionCount can be strings.
-- `get_assessment_result` precedes `create_development_plan`.
-- That evidence says these Development actions had not yet been run at that time. No later live acceptance evidence was retrieved.
+| Action | Request fields | Verified success response |
+|---|---|---|
+| get_assessment_result | assessmentKey | result with assessmentKey, employeeName/email, status CONFIRMED, totalCompetencies/gapItemCount/priorityGapCount strings, items[] |
+| create_development_plan | assessmentKey | 201: planKey, status DRAFT, gapItemCount, priorityGapCount, createdActionCount (string counts) |
+| get_development_plan | planKey | plan with planKey, assessmentKey, employeeName/email, reviewerEmail, status, gapItemCount, priorityGapCount, actions[] |
+| save_development_action | planKey, actionKey, actionType, developmentAction, successMeasure, ownerEmail, targetDate | planKey, actionKey, status PLANNED, plannedActionCount, totalActionCount |
+| start_development_plan | planKey | planKey, status IN_PROGRESS, plannedActionCount, totalActionCount |
+| complete_development_action | planKey, actionKey | planKey, actionKey, actionStatus COMPLETED, completedActionCount, totalActionCount, planStatus |
 
-Development live buttons remain disabled until verified mappings are configured. Role-play uses the confirmed/DRAFT/PLANNED lifecycle and never posts sample keys to an API.
+Results use validatedLevel, gapLevel, gapStatus (DEVELOPMENT_NEEDED / MEETS_OR_EXCEEDS). Plan actions use gapSeverity, plus completedAt, displayOrder and action content. The UI preserves these wire names; managerLevel/gap are presentation aliases. Plan response actions are nested inside plan, not a sibling array. Counts are normalized from strings and checked against loaded records. Result totals/gaps, plan identity/actions, mutation keys/status/counts and authoritative readback are validated.
 
-## Mapping format
+Plan key format is DEV|<assessmentKey>|R1; action keys are <planKey>|<cuKey>. The employee self-only read path can derive the evidenced plan key from its own authenticated assignment. Manager opens confirmed results automatically with the selected assessment context. If planKey is already known it gets that plan; otherwise Create / open development plan explicitly creates or resumes it. Navigation never creates a plan automatically. The observed duplicate 409 message Development plan already exists plus planKey is the only create failure recovered as an existing plan. It does not create duplicate actions. No generic 409/404 is treated as permission to create or as duplicate evidence.
 
-`config.js` contains the four verified Manager mappings. Add only mappings supported by actual request/response examples. Each operation maps normalized UI values to server fields:
+Allowed actionType values: TRAINING, OJT, COACHING_MENTORING, PROJECT_ASSIGNMENT, SELF_LEARNING, CERTIFICATION, OTHER. The editor uses a select and validates email and an actual YYYY-MM-DD calendar date because backend does not validate their formats. Save is DRAFT-only. Start requires nonzero total actions, actions count equals gapItemCount, all actions PLANNED and all five content fields filled. Empty plans cannot be started. Backend checks remain authoritative; the exact Not Startable branch condition was not extracted.
 
-```js
-contracts: {
-  // Template only. Replace action/fields/response with verified values.
-  managerQueue: {
-    api: "manager",
-    action: "<verified action>",
-    fields: {},
-    response: "<array response field>"
-  }
-}
-```
+Save/start/complete require ADMIN or plan reviewerEmail (case-insensitive); employee ownership never grants mutation rights. Plan lifecycle: DRAFT → IN_PROGRESS → COMPLETED; final completion transitions plan on server. Actions become PLANNED on save and COMPLETED on completion. Readback follows every mutation; counts/status are not synthesized. Pending operations cannot double-submit. Failed/ambiguous writes require refresh before another mutation.
 
-Operations: managerQueue, managerAssessment, managerSave, managerConfirm, assessmentResult, developmentPlan, developmentCreate, developmentSave. Assignment uses the separately guarded adapter above; assignmentCreate is no longer a write entry point. `api` is manager, assessment or development. `fields` maps normalized input names to backend payload names; only mapped fields are sent. `response` selects a top-level response field, or omit it to return the full response.
+Observed/definition errors include duplicate create 409; invalid action type 400; unauthorized edits 403; non-DRAFT save 409; incomplete start 409; completion outside IN_PROGRESS 409. Bodies of unobserved Not Found/Forbidden/Not Startable/action-not-found and shared auth branches remain unavailable. Client displays sanitized actionable messages and does not depend on invented bodies. All backend Terminate actions report Succeeded, so API HTTP status/body determines success.
 
-This adapter currently expects normalized shapes (including assessment items and plan/action shapes); if actual responses differ, implement an explicit normalization adapter and test it before enabling. A mapping alone is not evidence of compatibility.
+No backend contracts or GitHub Actions changed. No real API data is modified by automated checks. Authenticated live UAT from reviewer confirmation through completion remains an owner acceptance step.
 
-Normalized values supplied for other operations: assessmentKey; manager save additionally itemKey, managerLevel, managerComment; development save actionKey, planKey, actionType, developmentAction, successMeasure, ownerEmail, targetDate. Unknown fields or lifecycle actions must be established from the backend, not inferred from these UI names.
+## Manager development routing
 
-Next integration input: sanitized successful requests/responses, all supported states, reviewer permission semantics, approved actionType values, and error responses. Do not put signed endpoint URLs or session tokens in contract examples.
-
-## Manager development routing fix (2026-10-26)
-
-Manage Development Plan now opens managerDevelopment, a separate manager-scoped page. It snapshots the selected confirmed assessment/employee/profile and optional planKey; it never reads the logged-in manager's assignments or connectedDevelopment. My Development remains self-only/read-only even when the signed-in user is a manager. Sign-out clears both records.
-
-Configured adapters receive assessmentKey plus planKey when available. Result readback must match the selected confirmed assessment; plan readback rejects conflicting employee/assessment/plan keys. The normalized plan adapter accepts {plan:{planKey,assessmentKey,employeeEmail,status},actions:[]} or the existing flat {planKey,planStatus,actions:[]} shape. Empty plan lookup must be explicitly normalized as {plan:null,actions:[]}; an HTTP error is never treated as permission to create. Save/create/transition responses are followed by readback; ambiguous failures require refresh before further mutations. Backend authorization remains authoritative.
-
-developmentStart and developmentComplete are optional adapter slots, with normalized planKey and actionKey inputs. No production action names, response mappings, actionType enum or lifecycle contract are inferred or enabled. The UI's DRAFT → IN_PROGRESS → COMPLETED sample lifecycle and synthetic fixture mappings are adapter tests only; they do not verify the actual backend. Current production config still has no Development mappings. Exact get/result/create/save/start/complete samples or flow export are still required before enabling the full live workflow. No backend or GitHub Actions changes were made.
+Manage Development Plan opens managerDevelopment independently of self-only My Development. Selected assessment/employee/profile and known planKey are retained; mismatched response identity fails closed; sign-out clears both records. The previous routing-only release kept Development disabled pending evidence; the six verified mappings above supersede that limitation.

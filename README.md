@@ -14,11 +14,11 @@ Static, root-hosted application for the existing `took13/competency-app` Azure S
 
 ## Current integration boundary — read before live pilot
 
-All five endpoint URLs are configured. **Auth and Employee are implemented against locally available request/response evidence. Manager review is live-enabled against owner-supplied run-history evidence; Development live operations remain disabled until their exact payload/response mappings are supplied and verified. Assignment v2 is enabled using owner-supplied run-history evidence.** The referenced conversation preview does not contain those complete contracts. Endpoint availability alone is not a verified contract.
+All five endpoint URLs are configured. **Auth and Employee are implemented against locally available request/response evidence. Manager review is live-enabled against owner-supplied run-history evidence; Development is live-enabled using owner-supplied six-action run-history evidence. Assignment v2 is enabled using owner-supplied run-history evidence.** The referenced conversation preview does not contain those complete contracts. Endpoint availability alone is not a verified contract.
 
 The complete role-play experience works without live API calls. It uses a draft ETM catalog shared across sample profiles solely to demonstrate UX. Watchara's real SR targets must come from the backend; sample targets are not an approved SR requirement mapping. Sample ratings and team counts are clearly labeled. Role-play changes stay in memory and reset when the page reloads.
 
-`docs/BACKEND_CONTRACTS.md` records the evidence, missing mappings and integration format. Do not enable live writes by guessing action names or fields. Development evidence specifically restricts edits to ADMIN/reviewer and DRAFT plans; saving sets an action to PLANNED. No unsupported employee self-service write or action-completion API is assumed.
+`docs/BACKEND_CONTRACTS.md` records the evidence, missing mappings and integration format. Do not enable live writes by guessing action names or fields. Development evidence specifically restricts edits to ADMIN/reviewer and DRAFT plans; saving sets an action to PLANNED. Only ADMIN/reviewer may save, start or complete; employees remain self-only/read-only.
 
 ## Temporary demo configuration
 
@@ -47,4 +47,4 @@ Manager Workspace enables live Assign Assessment for authenticated MANAGER/ADMIN
 `assessmentCycles` in `config.js` and `config.example.js` holds confirmed `{label, cycleKey, type: 'PILOT', active: true}` entries. The confirmed round is **รอบทดลองประเมิน ETM 2026 — PILOT**, internally `ETM_UI_DEMO_2026`. One active supported round is automatically selected; multiple rounds require selection; no rounds disables readiness and creation. Raw keys appear only as option values and existing backend detail/error identifiers. Changing either input invalidates readiness. `assignmentCycles()` is the source adapter: replace its config source after a backend list-cycles contract and authorization rules are verified, keeping the normalized entries and UI. No list-cycles API is invented or called. Existing request fields and response mapping are unchanged.
 
 
-Manager Development Plan uses a separate employee-scoped page with assessment/profile context. My Development remains self-only/read-only. Run node verify-development.cjs for routing and synthetic adapter regression tests. Production Development operations remain gated pending exact backend contract evidence; see docs/BACKEND_CONTRACTS.md.
+Manager Development Plan uses a separate employee-scoped page with assessment/profile context. My Development remains self-only/read-only. Run node verify-development.cjs for routing and verified-contract regression tests. The six verified Development operations are enabled; see docs/BACKEND_CONTRACTS.md.
