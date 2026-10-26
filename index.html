@@ -1,13 +1,244 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Competency App</title>
-</head>
-<body>
-  <h1>Competency App</h1>
-  <p>Azure Static Web Apps deployment test successful.</p>
-</body>
-</html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Competency Hub · UI v2</title>
+<link rel="stylesheet" href="styles.css"></head>
+<body><a href="#content" class="skip">Skip to content</a><div class="shell">
+<aside><div class="brand"><span class="mark">↗</span><div>Competency Hub<small>GROW WITH PURPOSE</small></div></div><nav aria-label="Main navigation"><button data-page="home" class="active"><span class="navicon">⌂</span>Home</button><button data-page="assessment"><span class="navicon">▤</span>My Assessment</button><button data-page="development"><span class="navicon">↗</span>My Development</button><div class="nav-divider" id="roleDivider" hidden></div><button data-page="manager" id="managerNav" hidden><span class="navicon">◷</span>Manager Workspace</button><button data-page="admin" id="adminNav" hidden><span class="navicon">▦</span>Administration</button></nav><div class="aside-note"><div class="eyebrow">YOUR NEXT CHAPTER</div><p style="margin-top:10px">Build confidence.<br>Grow your capability.<br>Make an impact.</p><p style="margin-top:22px">Competency Hub · UI v2</p></div></aside>
+<div class="workspace"><header><div><span class="header-label muted small">PEOPLE & CAPABILITY / </span><b id="breadcrumb">My workspace</b></div><div class="top-tools"><span id="mode" class="session-tag">Demo · local only</span><button class="quiet" id="connect">Connect</button><button class="quiet" id="signout" hidden>Sign out</button></div><div class="identity"><span class="avatar" id="avatar">TA</span><div><b id="person">Thawatchai Apdullo</b><div class="muted small" id="personMeta">Plant Information · JR 7–8</div></div></div></header>
+<main id="content" tabindex="-1"></main></div></div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<dialog id="connection"><h2>Connect your workspace</h2><p class="muted small">Use the approved endpoints for this browser session.</p><form id="configForm"><label for="authUrl">Authentication & profile URL</label><input type="password" id="authUrl" autocomplete="off" required placeholder="HTTPS endpoint"><label for="employeeUrl">Employee assessment URL</label><input type="password" id="employeeUrl" autocomplete="off" required placeholder="HTTPS endpoint"><label for="managerUrl">Manager API URL</label><input type="password" id="managerUrl" autocomplete="off" required placeholder="HTTPS endpoint"><label for="assessmentUrl">Assessment API URL</label><input type="password" id="assessmentUrl" autocomplete="off" required placeholder="HTTPS endpoint"><label for="developmentUrl">Development API URL</label><input type="password" id="developmentUrl" autocomplete="off" required placeholder="HTTPS endpoint"><div class="security">Security note: signed endpoint URLs act as bearer secrets. URLs containing sig are bearer secrets. Local config is for development/demo only, not production security. Loaded values stay in sessionStorage; the local file remains on disk. Do not share URLs, commit them, or include them in screenshots. Use an authenticated server gateway before production. The server must enforce access and workflow rules.</div><div class="dialog-actions"><button type="button" id="closeConnection">Cancel</button><button class="primary">Use this session</button></div></form></dialog>
+<dialog id="confirmSubmit"><h2>Ready for your manager?</h2><p>Your saved assessment will be sent for review. You will be able to read your answers, but editing will close.</p><div class="dialog-actions"><button id="cancelSubmit">Keep reviewing</button><button id="doSubmit" class="primary">Submit assessment</button></div></dialog>
+<dialog id="confirmManager"><h2>Confirm this assessment?</h2><p>The reviewed levels will become the employee’s confirmed results for development planning.</p><div class="dialog-actions"><button id="cancelManager">Keep reviewing</button><button id="doConfirmManager" class="primary">Confirm assessment</button></div></dialog>
+<script id="fixture" type="application/json">{
+  "assessment": {
+    "status": "ASSIGNED",
+    "assessmentKey": "PILOT|ETM_UI_DEMO_2026|gpscrpauser@gpscgroup.com|R1",
+    "cycleKey": "ETM_UI_DEMO_2026",
+    "items": [
+      {
+        "selfEvidence": "",
+        "competencyName": "Fundamentals of Power Plant",
+        "displayOrder": 1,
+        "itemKey": "demo-1",
+        "targetLevel": 3,
+        "generalStatement": "Understand of power generation principles, cycle efficiencies, and the core mechanical and electrical systems",
+        "levels": {
+          "1": "Identifies the basic purpose of a power plant and the main energy-conversion process.\nLists major equipment and systems such as turbine, generator, boiler/HRSG, condenser, cooling system, fuel system, water treatment, electrical system, and control system.\nRecognizes basic plant terminology, units, operating parameters, and major safety hazards.",
+          "2": "Explains the overall power-generation process and the function of major plant systems.\nDescribes basic thermodynamic principles and common parameters such as pressure, temperature, flow, power, heat rate, efficiency, and auxiliary consumption. \nExplains the basic interfaces between mechanical, electrical, I&C, chemical, operations, and maintenance functions. \nParticipates in routine engineering activities and plant inspections.",
+          "3": "Applies power-plant fundamentals to engineering studies, equipment selection, modifications, and troubleshooting.\nAnalyzes the relationship between equipment condition, operating parameters, plant performance, reliability, safety, and environmental impact.\nInterprets PFDs, P&IDs, heat balances, electrical single-line diagrams, equipment datasheets, trends, alarms, and basic design calculations. \nIdentifies abnormal conditions and escalates them appropriately.",
+          "4": "Evaluates complex plant behavior involving several interconnected systems or disciplines.\nDiagnoses difficult operational, performance, and reliability problems using engineering principles and plant data. \nAdvises on plant modifications, operating strategies, equipment limitations, technical risks, and lifecycle impacts. \nCoaches engineers and reviews technical studies and engineering deliverables.",
+          "5": "Establishes technical direction and organizational standards for power-plant engineering fundamentals. \nProvides expert advice on complex or high-risk issues with plant-wide or business impact. \nIntegrates new technology, industry developments, operating experience, and advanced engineering methods into the organization.\nDevelops organizational capability and represents the company in technical forums."
+        },
+        "itemStatus": "PENDING",
+        "selfLevel": null,
+        "competencyGroup": "Basic Fundamentals"
+      },
+      {
+        "selfEvidence": "",
+        "competencyName": "Gas Turbine Operation, Application and Selection Criteria",
+        "displayOrder": 2,
+        "itemKey": "demo-2",
+        "targetLevel": 2,
+        "generalStatement": "Know the fundamentals, operation, application, objectives and selection criteria of a gas turbine.",
+        "levels": {
+          "1": "Define the term 'gas turbine' and identify the types, objectives and applications in crude oil production. \nList different components and subsystems of gas turbine and their working principle.\nRecognize the importance of conditioning of air and fuel, pressure and temperature of air and cooling water in gas turbine.\nState the importance of material construction of various parts in gas turbine.\nState the importance of operating data, regular inspection and calibration of gas turbine and its components.",
+          "2": "Describe and identify potential hazards related to operation and maintenance of gas turbine.\nDescribe the operating parameters that affect gas turbine performance.\nDescribe the start-up and shutdown sequence of a gas turbine and the redundancy available in case of failure of a component.\nDescribe the importance of purging in start-up and shutdown sequence of a gas turbine.\nDescribe the importance of alignment in multi-shaft gas turbine unit and online vibration monitoring system.\nDraw a schematic diagram of closed cycle gas turbine unit and describe each component and subsystem.\nCollect operational and inspection data for calculation of performance and failure analysis of gas turbine.",
+          "3": "Explain the potential hazards related to gas turbine operation, maintenance and inspection.\nExplain the advantages closed cycle has over open cycle in gas turbine performance.\nDetermine the factors to be considered and the impact on viability during selection of gas turbine.\nExplain the impact of suspended particles and impurities (e.g. vanadium) on compressor and turbine blades, combustion chamber and fuel nozzles of gas turbine.\nCalculate efficiency of the gas turbine and suggest remedial measures in case there is deviation from the specification.\nUse operational, condition-monitoring and inspection data for root cause analysis of failure and recommend remedial action using computer-aided maintenance management system (CAMMS).\nSupport others in resolving repeated failures of gas turbine.",
+          "4": "Ensure effective monitoring system is in place and point out any deviation in operational and inspection data of gas turbine unit.\nAnalyze root cause of failure using operational, condition-monitoring and inspection data and techniques, and ensure appropriate measures are in place for reliability and integrity of gas turbine unit.\nMonitor and recommend using CAMMS for improvement in performance of gas turbine unit.\nArrange appropriate training program for personnel involved in application, design features and selection of gas turbine.",
+          "5": "content under development"
+        },
+        "itemStatus": "PENDING",
+        "selfLevel": null,
+        "competencyGroup": "C&I Engineering"
+      },
+      {
+        "selfEvidence": "",
+        "competencyName": "Heat Recovery Steam Generator (HRSG)",
+        "displayOrder": 3,
+        "itemKey": "demo-3",
+        "targetLevel": 2,
+        "generalStatement": "Know the function of HRSG, internal and external components, operating principles, troubleshooting and isolation for maintenance",
+        "levels": {
+          "1": "Explain the function of Heat Recovery Steam Generator (HRSG)\nIdentify the major components of HRSG system, Stack, Economizer, Evaporator, Super heater, Boiler drum and describe the functions\nExplain the function of boiler protection\nIdentify the sources from which water is obtained for HRSG systems\nExplain the function of HRSG and the role in plant operation\nIdentify HRSG on Process Flow Diagrams (PFD) and Piping Instrument Diagrams (P&ID)\nExplain the methods of heat transfer\nList the common internal components, external components and accessories of HRSG",
+          "2": "Describe all safety precautions to be taken while operating HRSG\nIdentify HRSG process line components and line up\nAssist in routine operation procedures on a HRSG system\nAssist in recording HRSG operating parameters\nLocate the specifications and operating procedure for HRSG systems\nLocate the major components, Stack, Economizer, Evaporator, Super heater, Boiler drum and system of HRSG on site\nAssist shut down and make safe HRSG system for routine maintenance following procedures\nDescribe the action while the boiler protection failed to operate",
+          "3": "Adjust variable parameters HRSG system, ensuring availability at all times at the correct flow rate and pressure\nCoordinate non routine maintenance and repairs of HRSG system, verifying system is safe to work on\nRespond to abnormal operation of HRSG system, ensuring continuous supply of water to the boilers\nRecommend and adjust the chemical dosage of chemical in HRSG\nOperate and monitor HRSG\nDescribe HRSG isolation and de-isolation procedures when required\nExplain the effect of emissions expelled to the atmosphere\nExplain effect of HRSG start up on plant operation (drum swell and shrink)\nExplain how to preserve the HRSG in case of short term or long term shutdown.",
+          "4": "Monitor others’ safety behavior while operating HRSG\nEnsure the availability of HRSG system and that it operates at the specified flow rate and pressure\nCoordinate with others maintenance scheduling of HRSG and related equipment according to requirements\nTroubleshoot operational reported faults of HRSG and advise the corrective action\nMonitor the HRSG emissions expelled to the atmosphere",
+          "5": "Analyze the performance of HRSG and make recommendations to improve performance\nCoach others in the operation HRSG system and give advice on operational procedures when required\nEvaluate HRSG efficiency and give recommendations on improving efficiency to acceptable level\nReview HRSG emission report and recommend adjustments to obtain desired performance"
+        },
+        "itemStatus": "PENDING",
+        "selfLevel": null,
+        "competencyGroup": "C&I Engineering"
+      },
+      {
+        "selfEvidence": "",
+        "competencyName": "Internet Of Thing (IoT)",
+        "displayOrder": 4,
+        "itemKey": "demo-4",
+        "targetLevel": 3,
+        "generalStatement": "Known the functions, configure and design IoT system.",
+        "levels": {
+          "1": "Identify IoT concept and basic components such as sensors, actuators, gateways, and cloud platforms.\nRecognize common IoT communication technologies (Wi-Fi, BLE, NB-IoT, LoRaWAN, MQTT).\nState basic IoT architecture: device → gateway → platform.\nIdentify use cases of IoT in industrial operations (monitoring, alerts, data logging).\nUnderstand IoT-related safety, cybersecurity basics, and device connectivity concerns.",
+          "2": "Explain functions of IoT sensors, edge devices, and gateways used in plant applications.\nDescribe communication protocols used in IoT systems (MQTT, CoAP, HTTP).\nAssist in installation and configuration of IoT devices for simple monitoring tasks.\nTroubleshoot basic IoT connectivity problems (network, power, sensor errors).\nRead and interpret simple IoT dashboards or device data from platforms.",
+          "3": "Configure IoT systems including sensors, gateways, communication, and dashboard.\nIntegrate IoT data with existing platforms (PI System, SCADA, databases).\nEvaluate device performance, data quality, transmission reliability, and security risks.\nDesign small IoT solutions for specific operational use cases (e.g., vibration monitoring, environmental sensing).\nRecommend communication protocols and device types for plant environments.",
+          "4": "Design full IoT architecture including network, edge computing, and on-cloud and on-premises integration.\nOptimize IoT system performance, reliability, scalability, and cybersecurity.\nDefine project specifications and operational requirements for IoT deployment.\nReview vendor proposals, technical documents, and ensure compliance with company standards.\nLead IoT implementation and commissioning across plant areas.",
+          "5": "Coach others in IoT technologies, architecture, and industrial implementation.\nDevelop IoT strategies aligned with digital transformation goals across the organization.\nIntroduce new IoT technologies (edge AI, digital twins, wireless mesh networks) for future plant upgrades.\nRepresent the organization in external committees and drive innovation in IoT adoption."
+        },
+        "itemStatus": "PENDING",
+        "selfLevel": null,
+        "competencyGroup": "Hardware & Technology"
+      },
+      {
+        "selfEvidence": "",
+        "competencyName": "Basic Computer Network System and Equipment",
+        "displayOrder": 5,
+        "itemKey": "demo-5",
+        "targetLevel": 3,
+        "generalStatement": null,
+        "levels": null,
+        "itemStatus": "PENDING",
+        "selfLevel": null,
+        "competencyGroup": "Hardware & Technology"
+      },
+      {
+        "selfEvidence": "",
+        "competencyName": "Hardware Architecture",
+        "displayOrder": 6,
+        "itemKey": "demo-6",
+        "targetLevel": 3,
+        "generalStatement": "Understand the features and functions of the server architecture.",
+        "levels": {
+          "1": "List the key components of server architecture.\nList the hardware components used by the company.\nState the process of updating software with the latest releases and updates.",
+          "2": "Assist in analyzing new hardware, components and related equipment as requested.\nInstall approved new hardware and related equipment.\nInstall approved user applications.\nAssist in maintaining server operating systems.\nInstall software releases, updates and patches.",
+          "3": "Lead the review, selection and installation of new hardware.\nLead the specification of new hardware components.\nLead the selection and installation of new equipment.\nProvide input to security standards.\nManage server operating systems.\nManage the installation of user applications.\nMaintain software to latest releases and updates.",
+          "4": "Establish guidelines for the selection of new hardware.\nApprove new hardware and equipment selections.\nEstablish security standards related to hardware, servers and related equipment.\nOversee the installation of new hardware, equipment and related user applications and software.",
+          "5": "Content under development"
+        },
+        "itemStatus": "PENDING",
+        "selfLevel": null,
+        "competencyGroup": "Hardware & Technology"
+      },
+      {
+        "selfEvidence": "",
+        "competencyName": "OS-Windows",
+        "displayOrder": 7,
+        "itemKey": "demo-7",
+        "targetLevel": 4,
+        "generalStatement": "Know the personal computer (desktop and laptop) operating system(s) used by the company. Install, uninstall and upgrade operating systems; troubleshoot and solve operating system conflicts and problems.",
+        "levels": {
+          "1": "Define 'operating system (OS).'\nList the main components of an OS.\nDefine 'boot' in the context of a PC.\nDefine 'hardware driver.'\nState a reason for creating a partition on a hard drive.\nList the basic OS maintenance tasks for a personal computer (PC).",
+          "2": "Describe the function of each OS component in a computer.\nDescribe the boot sequence for a PC.\nVerify if a driver is the latest version.\nDescribe the procedure for removing and creating partitions on hard drives.\nPerform basic PC OS maintenance tasks.",
+          "3": "Manually boot a personal computer (PC).\nExplain how to add and remove operating system components.\nInstall, uninstall and upgrade an OS.\nInstall, uninstall and update hardware drivers.\nRemove and create hard drive partitions.\nPerform advanced PC OS maintenance tasks.",
+          "4": "Explain the relationship between the OS, application software and hardware.\nDiagnose and recover a PC that will not boot.\nTroubleshoot and solve OS installation and upgrade problems.\nIdentify and solve possible OS - application software conflicts.\nExplain how to configure a hard drive as a slave.\nVerify that the OS automatic updates function is configured and functioning correctly.",
+          "5": "Content under development"
+        },
+        "itemStatus": "PENDING",
+        "selfLevel": null,
+        "competencyGroup": "Software & AI"
+      },
+      {
+        "selfEvidence": "",
+        "competencyName": "Software Skills - General",
+        "displayOrder": 8,
+        "itemKey": "demo-8",
+        "targetLevel": 4,
+        "generalStatement": null,
+        "levels": null,
+        "itemStatus": "PENDING",
+        "selfLevel": null,
+        "competencyGroup": "Software & AI"
+      },
+      {
+        "selfEvidence": "",
+        "competencyName": "Basic Data Science",
+        "displayOrder": 9,
+        "itemKey": "demo-9",
+        "targetLevel": 3,
+        "generalStatement": "Known Data science principle and competency of Data science management.",
+        "levels": {
+          "1": "Explain basic data concepts (e.g., data types, data sources).\nFamiliarity with data manipulation, clean, structure, scale, and engineer data using tools like Excel or SQL.\nBasic statistical knowledge and ability to perform simple data analysis.\nUnderstanding the principles and general ideas of creating a data science/analytics solution.\nList data needed to develop project specifications, operational requirements and economic evaluations for Data Science project.",
+          "2": "Proficiency in programming languages like Python or R for data manipulation and analysis.\nAbility to perform simple data analysis (e.g. regression analysis, non-parametric regression methods)\nKnowledge of data visualization techniques and tools (e.g., Matplotlib, Seaborn, Tableau)\nComfortable working with structured and semi-structured data.\nBe able to understand the essential components of good data visualization.\nBe able to use data visualization tools (such as  Python’s matplotlib and seaborn packages; and R’s ggplot2 package)",
+          "3": "Strong understanding of machine learning algorithms and techniques\nAbility to build and evaluate predictive models using supervised and unsupervised learning.\nExperience with data cleaning, feature engineering, and model validation\nUtilizes sound communication and collaboration skills to gain an understanding of the organizational problem from stakeholders.\nSelect and prepare project specifications, operational requirements and economic evaluations for Data Science project.\nEnsuring a clear project definition Managing the timeline Monitoring the project execution",
+          "4": "Deep knowledge of advanced machine learning techniques like deep learning, natural language processing, and reinforcement learning.\nExperience with big data tools and frameworks (e.g., Apache Spark, Hadoop) for handling large-scale datasets.\nAbility to optimize and fine-tune models for maximum performance.\nAbility to review data science work products for accuracy and completeness.\nAbility to teach proper coding practices, modeling approaches, etc.\nBe able to effectively communicate with business stakeholders and convey data-related concepts in a way that they can understand.\nEstablishes whether the problem is amenable to a data driven solution using experience and knowledge of a variety of use cases and potential solutions.",
+          "5": "Ability to develop innovative solutions to complex data science challenges.\nThought leadership, mentorship, and the capability to guide and shape data science strategies for organizations.\nReview and approve project specifications, operational requirements and economic evaluations for Data Science Project\nAbility to set data science/analytics goals and deliverables for complex project and to identify key success metrics"
+        },
+        "itemStatus": "PENDING",
+        "selfLevel": null,
+        "competencyGroup": "Software & AI"
+      },
+      {
+        "selfEvidence": "",
+        "competencyName": "Data Protection and Security",
+        "displayOrder": 10,
+        "itemKey": "demo-10",
+        "targetLevel": 2,
+        "generalStatement": "Understand the data protection and security software used in the organization.",
+        "levels": {
+          "1": "State the fundamental principles of data protection and security.\nIdentify the firewall.\nName the versions and types of security software used in company's computers.\nName common Internet security risks.\nIdentify computer viruses and threats.",
+          "2": "Describe the tools, diagnostic procedures and troubleshooting techniques for data protection and security.\nDescribe the importance of securing computer networks with a firewall.\nDescribe how security software protects the computers.\nDescribe the potential security threat of e-mail attachments, spam and downloading malicious or unauthorized files.\nDescribe the potential security threat of viruses.",
+          "3": "Install, configure, upgrade and optimize data protection and security software.\nExplain the company's security policy and precautions currently implemented.\nClear cookies and temporary files from the Internet cache.\nInstall or update an antivirus program according to appropriate procedure.",
+          "4": "Perform preventive maintenance for computer data protection and security.\nDevelop new and innovative security systems procedures.\nTroubleshoot and solve complex security software problems.\nEvaluate whether lockdown software on the company's computers is functioning.\nCoach subordinates in how to keep virus protection programs updated.",
+          "5": "Content under development"
+        },
+        "itemStatus": "PENDING",
+        "selfLevel": null,
+        "competencyGroup": "Software & AI"
+      },
+      {
+        "selfEvidence": "",
+        "competencyName": "Artificial intelligence (AI)",
+        "displayOrder": 11,
+        "itemKey": "demo-11",
+        "targetLevel": 3,
+        "generalStatement": "Know the concept and apply AI techniques to improve plant performance and work process.",
+        "levels": {
+          "1": "Identify basic AI concepts such as machine learning, supervised/unsupervised learning, and model types.\nRecognize common AI applications in power plants (predictive maintenance, anomaly detection, forecasting).\nUnderstand limitations of AI models and the need for quality data.\nFamiliarity with AI tools used in the organization (Python, Power BI, cloud AI services).",
+          "2": "Explain AI workflow (data collection → preprocessing → model training → evaluation).\nAssist in preparing datasets and performing simple data preprocessing tasks.\nUse basic AI tools to run simple models (regression, clustering) under guidance.\nInterpret basic model outputs and performance metrics.\nSupport the integration of AI output into plant dashboards or reports.",
+          "3": "Develop predictive models using standard ML techniques (regression, classification, clustering).\nPerform feature engineering, model training, tuning, and validation.\nTroubleshoot model performance problems and recommend improvements.\nIntegrate AI models with plant data systems (PI System, SCADA, databases).\nPrepare project specifications and operational requirements for AI solutions.",
+          "4": "Apply advanced AI techniques such as deep learning, NLP, time-series forecasting, reinforcement learning, and generative AI.\nDesign and deploy production-level AI systems (APIs, edge AI, cloud AI pipelines).\nOptimize model performance and ensure model governance, auditability, and cybersecurity.\nReview and approve AI project requirements, methodology, and architecture.\nLead AI pilots and coordinate cross-functional teams during AI integration.",
+          "5": "Coach others in AI and machine learning methods and best practices.\nSet long-term AI strategy, governance frameworks, and model lifecycle management (MLOps).\nDrive innovation using advanced AI such as digital twins, generative AI, and automated root-cause analysis.\nEvaluate and select AI technologies and vendors to support organizational strategy.\nRepresent the organization in AI initiatives internally and externally."
+        },
+        "itemStatus": "PENDING",
+        "selfLevel": null,
+        "competencyGroup": "Software & AI"
+      },
+      {
+        "selfEvidence": "",
+        "competencyName": "Plant Information Software",
+        "displayOrder": 12,
+        "itemKey": "demo-12",
+        "targetLevel": 4,
+        "generalStatement": "Ability to operate, configure, maintain, troubleshoot, and optimize the Plant Information System (PI Server, AF, Vision, Interfaces, Web API) to support plant operations and analytics.",
+        "levels": {
+          "1": "Understands basic concepts and can use standard tools.\n\nIdentifies PI System components (PI Server, AF, Vision, Interfaces).\nReads trends and displays in PI Vision/ProcessBook.\nUnderstands basic tag structure and data types.\nNavigates AF hierarchy and retrieves simple data.\nReports system issues with essential information.",
+          "2": "Uses PI System for daily operations, reporting, and basic issue detection.\n\nCreates PI Vision trends, displays, and simple dashboards.\nExtracts data using PI DataLink and performs basic validation.\nIdentifies common data problems (bad values, stale data, interface down).\nUnderstands data flow from field devices to PI Server.\nUses AF search, attributes, and event frames for analysis.",
+          "3": "Configures PI System components and performs technical troubleshooting.\n\nCreates/modifies PI Tags and follows naming standards.\nBuilds AF structures, templates, and AF analyses.\nTroubleshoot interfaces/connectors (OPC, Modbus, etc.).\nMonitors PI Server performance and perform basic maintenance.\nDevelop PI Vision dashboards for operational needs.\nUses PI Web API for simple integrations.",
+          "4": "Designs and optimize system architecture and enterprise integrations.\n\nDesigns complete PI System architecture including redundancy and capacity.\nSolves complex system issues (archive, buffering, interface failures).\nOptimizes AF structures and large-scale analysis performance.\nImplement integrations (SCADA, Power BI, AI tools, workflows).\nEstablishes standards for data governance and naming.\nLeads upgrades, migrations, and cybersecurity compliance.",
+          "5": "Guides organizational strategy and innovation in PI System.\n\nServes as PI System subject matter expert for the company.\nDefines long-term PI System strategy aligned with digital transformation.\nDrives innovation: AI integration, predictive analytics, automation.\nDevelops enterprise-wide governance and unified asset models.\nEvaluates vendors and emerging technologies for future adoption.\nMentors technical staff and builds organizational capability."
+        },
+        "itemStatus": "PENDING",
+        "selfLevel": null,
+        "competencyGroup": "Software & AI"
+      }
+    ]
+  },
+  "assignment": {
+    "status": "ASSIGNED",
+    "assessmentKey": "PILOT|ETM_UI_DEMO_2026|gpscrpauser@gpscgroup.com|R1",
+    "cycleKey": "ETM_UI_DEMO_2026",
+    "expectedItemCount": 12
+  },
+  "profile": {
+    "employeeEmail": "gpscrpauser@gpscgroup.com",
+    "disciplineCode": "ETM",
+    "employeeName": "Thawatchai Apdullo",
+    "department": "Technology & Digitalization",
+    "jobGradeCode": "JR_7_8",
+    "trackKey": "ETM_PI",
+    "appRole": "EMPLOYEE"
+  }
+}</script>
+<script src="config.js" referrerpolicy="no-referrer"></script>
+<script src="app.js" defer></script></body></html>
+
+
