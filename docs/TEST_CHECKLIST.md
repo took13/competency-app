@@ -55,3 +55,13 @@ Run `node verify-ux.cjs` with Playwright available. All authentication responses
 - [ ] Rotate/revoke temporary signed URLs after the pilot and remove public endpoint configuration before production.
 
 Unchecked live items are not represented as passed by browser mocks or hosting success.
+
+## Manager feedback UI regression
+
+- [x] Shared status aliases and explicit labels; pending, dirty, saved, submitted and planned states.
+- [x] Large level controls and selected state; labeled Employee/Manager/Development metrics.
+- [x] No page overflow at 320, 390 and 768px in all three workspaces.
+- [x] Existing demo lifecycle, API payload, failure/concurrency and session checks.
+- [ ] Pilot accessibility UAT at 200% zoom and with screen reader.
+
+See UI_V2_MANAGER_FEEDBACK.md for implementation choices and backlog.
