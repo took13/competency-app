@@ -7,5 +7,39 @@ window.COMPETENCY_CONFIG = {
   "assessmentApiUrl": "https://defaultc6445630e6024993a6057e41f70338.e8.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/30/workflows/1547c226e95e4d228f13a384e21dc69b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=M4eJDvtrIPpGmc3xW3AkMoyFnonQB1D6kvw_MgRHRNE",
   "developmentApiUrl": "https://defaultc6445630e6024993a6057e41f70338.e8.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/24/workflows/b3b21cf4ebf14f3e8953ebed7981a9d1/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=TOyR2GIGpABrqapYwv8FnuZ6HsNnxUWpdJq7fKf5dbg",
   "temporaryDemoOnly": true,
-  "contracts": {}
+  "contracts": {},
+  "assignmentContract": {
+  "verified": true,
+  "fields": {
+    "employeeEmail": "employeeEmail",
+    "cycleKey": "cycleKey"
+  },
+  "preview": {
+    "employee": "preview.employeeEmail",
+    "employeeName": "preview.employeeName",
+    "profile": "preview.profileVersionKey",
+    "expectedCount": "preview.expectedCUCount",
+    "requirementCount": "preview.requirementCount",
+    "blockingCount": "preview.blockingCount",
+    "missingCUVersion": "preview.contentReadiness.missingCUVersionCount",
+    "targetRubricIssues": "preview.contentReadiness.targetRubricIssueCount",
+    "pilotCanAssign": "preview.pilotCanAssign",
+    "blockers": "preview.blockers",
+    "issues": "preview.contentReadiness.issues",
+    "cycleKey": "preview.cycleKey",
+    "trackKey": "preview.trackKey",
+    "jobGradeCode": "preview.jobGradeCode",
+    "cycleStatus": "preview.cycleStatus",
+    "profileStatus": "preview.profileStatus"
+  },
+  "created": {
+    "assessmentKey": "assessmentKey",
+    "status": "status",
+    "createdItemCount": "createdItemCount",
+    "expectedItemCount": "expectedItemCount",
+    "employeeEmail": "employeeEmail",
+    "profileVersionKey": "profileVersionKey",
+    "mode": "mode"
+  }
+}
 };

@@ -47,7 +47,7 @@ Run `node verify-ux.cjs` with Playwright available. All authentication responses
 - [ ] Load live assignments and confirm JR versus SR profiles, items and targets from backend.
 - [ ] Save employee evidence, reload from backend, confirm persistence; submit and verify lock.
 - [ ] Supply/verify Manager queue/detail/save/confirm request and response contracts; enable and test authorized reviewer access.
-- [ ] Supply/verify assignment creation contract, then verify no duplicate assignments and correct item counts.
+- [ ] Live-test the mapped assignment contract: no duplicate assignments and correct item counts.
 - [ ] Verify get_assessment_result, create_development_plan, get_development_plan and save_development_action in that order.
 - [ ] Confirm seven approved actionType values; verify DRAFT plan guard, reviewer-only edits, PLANNED status and string count fields.
 - [ ] Verify expired session, unauthorized employee, foreign item/assessment, 403, 409, timeout, duplicate click and refresh behavior.
@@ -68,18 +68,20 @@ See UI_V2_MANAGER_FEEDBACK.md for implementation choices and backlog.
 
 ## Assign Assessment incremental UI (2026-10-26)
 
-Run `node verify-assignment.cjs` with Playwright available. This uses a synthetic adapter, not a verified live backend contract.
+Run `node verify-assignment.cjs` with Playwright available. This mocks the owner-supplied verified v2 contract shapes; it does not perform live writes.
 
 - [x] Manager section; employee cannot invoke assignment; role-play and missing mapping disable live actions.
 - [x] Strict boolean pilotCanAssign; positive expected count; explicit zero blockers, missing CUVersion and target rubric issue counts. Missing/malformed fields block creation.
 - [x] Input changes invalidate preview; Create always re-previews identical frozen inputs; newly discovered blocker prevents POST create.
 - [x] Duplicate 409 consumes preview and displays a clear message; repeated pending click cannot create twice.
 - [x] Success key/status/item count display and signed-in employee list refresh; manager queue limitation is explicit.
-- [x] Only configured fixture request fields sent; no guessed production mapping.
+- [x] Request sends only action/sessionToken/employeeEmail/cycleKey; profile resolved by server.
 - [x] Manager assignment layout fits 320/390/768/1440px; existing status/level and sign-in suites pass.
-- [ ] Obtain and map sanitized successful v2 request/response and scope/profile resolution evidence.
+- [x] Owner-supplied observed 200 preview (ready and blocked), 201 creation and 409 not-ready mapped. Duplicate 409 is definition-only evidence; no observed run.
+- [x] String True/False and string counts normalized; DRAFT pilot with productionCanAssign False remains eligible.
+- [x] Both 409 branches tested separately; duplicate displays existing AssessmentKey.
 - [ ] Live authorized MANAGER/ADMIN preview, out-of-scope 403, blocked DM profile and successful JR/SR assignment.
 - [ ] Live deterministic PILOT key, duplicate 409, PREPARING → ASSIGNED count integrity; employee sees assignment on reload.
 - [ ] Live 401, timeout/ambiguous write and recovery from partial PREPARING header.
 
-Published config intentionally remains unmapped; this release does not claim live assignment acceptance.
+Published config now enables the verified v2 mapping. Browser checks pass with contract-shaped mocks; authenticated live assignment acceptance remains unchecked.

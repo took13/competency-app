@@ -14,7 +14,7 @@ Static, root-hosted application for the existing `took13/competency-app` Azure S
 
 ## Current integration boundary — read before live pilot
 
-All five endpoint URLs are configured. **Auth and Employee are implemented against locally available request/response evidence. Manager, assignment creation and Development live operations remain disabled until their exact payload/response mappings are supplied and verified.** The referenced conversation preview does not contain those complete contracts. Endpoint availability alone is not a verified contract.
+All five endpoint URLs are configured. **Auth and Employee are implemented against locally available request/response evidence. Manager review and Development live operations remain disabled until their exact payload/response mappings are supplied and verified. Assignment v2 is enabled using owner-supplied run-history evidence.** The referenced conversation preview does not contain those complete contracts. Endpoint availability alone is not a verified contract.
 
 The complete role-play experience works without live API calls. It uses a draft ETM catalog shared across sample profiles solely to demonstrate UX. Watchara's real SR targets must come from the backend; sample targets are not an approved SR requirement mapping. Sample ratings and team counts are clearly labeled. Role-play changes stay in memory and reset when the page reloads.
 
@@ -42,4 +42,4 @@ Commit the root files to `main`; the existing Azure workflow publishes them. Ver
 
 ## Assign Assessment increment
 
-Manager Workspace now contains a guarded Assign Assessment section for MANAGER/ADMIN. Preview/readiness/create and explicit duplicate handling are implemented, with a fresh preview required on Create. **Live assignment remains unavailable until sanitized successful v2 payloads and readiness paths are mapped.** No backend fields were guessed; `config.js` remains unchanged. See `docs/BACKEND_CONTRACTS.md`. Run `node verify-assignment.cjs` for the synthetic-adapter browser checks.
+Manager Workspace now enables live Assign Assessment for authenticated MANAGER/ADMIN. Enter target employeeEmail and cycleKey; the server resolves the profile. Preview displays readiness and profile traceability. Create always re-previews and is guarded by normalized pilotCanAssign plus zero blockers. DRAFT pilot profiles are permitted when the backend says pilot-ready. Both not-ready and duplicate 409 responses are distinguished. See docs/BACKEND_CONTRACTS.md for evidence and remaining live UAT limits. Run node verify-assignment.cjs for browser checks against mocked, verified response shapes. No OTP or live assignments are created by those tests.
