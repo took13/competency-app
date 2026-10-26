@@ -108,3 +108,11 @@ This adapter currently expects normalized shapes (including assessment items and
 Normalized values supplied for other operations: assessmentKey; manager save additionally itemKey, managerLevel, managerComment; development save actionKey, planKey, actionType, developmentAction, successMeasure, ownerEmail, targetDate. Unknown fields or lifecycle actions must be established from the backend, not inferred from these UI names.
 
 Next integration input: sanitized successful requests/responses, all supported states, reviewer permission semantics, approved actionType values, and error responses. Do not put signed endpoint URLs or session tokens in contract examples.
+
+## Manager development routing fix (2026-10-26)
+
+Manage Development Plan now opens managerDevelopment, a separate manager-scoped page. It snapshots the selected confirmed assessment/employee/profile and optional planKey; it never reads the logged-in manager's assignments or connectedDevelopment. My Development remains self-only/read-only even when the signed-in user is a manager. Sign-out clears both records.
+
+Configured adapters receive assessmentKey plus planKey when available. Result readback must match the selected confirmed assessment; plan readback rejects conflicting employee/assessment/plan keys. The normalized plan adapter accepts {plan:{planKey,assessmentKey,employeeEmail,status},actions:[]} or the existing flat {planKey,planStatus,actions:[]} shape. Empty plan lookup must be explicitly normalized as {plan:null,actions:[]}; an HTTP error is never treated as permission to create. Save/create/transition responses are followed by readback; ambiguous failures require refresh before further mutations. Backend authorization remains authoritative.
+
+developmentStart and developmentComplete are optional adapter slots, with normalized planKey and actionKey inputs. No production action names, response mappings, actionType enum or lifecycle contract are inferred or enabled. The UI's DRAFT → IN_PROGRESS → COMPLETED sample lifecycle and synthetic fixture mappings are adapter tests only; they do not verify the actual backend. Current production config still has no Development mappings. Exact get/result/create/save/start/complete samples or flow export are still required before enabling the full live workflow. No backend or GitHub Actions changes were made.

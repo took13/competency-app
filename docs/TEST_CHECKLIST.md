@@ -110,3 +110,15 @@ Published Manager mappings enable get_my_reviews, get_review_assessment, save_ma
 
 Confirmed this session is not a historical KPI. Confirmed records are excluded by get_my_reviews; counts reset on session clear/reload.
 
+
+## Manager development route regression (2026-10-26)
+
+Run node verify-development.cjs and node verify-manager.cjs. Development wire mappings in the new test are explicitly synthetic, not production contract evidence.
+
+- [x] Manage Development Plan uses separate manager page with reviewed employee name, assessment and profile; never resolves to manager's own My Development.
+- [x] Self page checks employee identity and exposes no create/edit/start/complete controls, including for a MANAGER.
+- [x] Selected assessmentKey and available planKey reach configured adapters; result/plan subject mismatches fail closed.
+- [x] Fixture create/get, edit/save, start/complete use readback and plan/action keys; missing mappings disable live mutations.
+- [x] Role/session guards and 320/390/768/1440px layout.
+- [ ] Verify actual Development request/response/state/actionType contract and enable live mappings.
+- [ ] Authenticated reviewer live UAT from confirmation through plan completion; synthetic mocks do not prove this.
