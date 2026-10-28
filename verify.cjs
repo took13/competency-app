@@ -13,7 +13,7 @@ function pass(s){checks.push(s);console.log('PASS '+s);}
  const url=process.env.UI_SITE||`http://127.0.0.1:${server.address().port}`;
  try{
   await page.goto(url);await page.getByRole('button',{name:'Explore role-play demo'}).click();
-  assert.equal(await page.locator('#rolePlayer option').count(),4);assert.equal(await page.locator('#managerNav').isVisible(),false);assert.equal(await page.locator('#adminNav').isVisible(),false);pass('Four role-play identities; employee has no manager/admin access');
+  assert.equal(await page.locator('#rolePlayer option').count(),8);assert.equal(await page.locator('#managerNav').isVisible(),false);assert.equal(await page.locator('#adminNav').isVisible(),false);pass('Eight role-play identities; employee has no manager/admin access');
   fs.mkdirSync(path.join(root,'test-results'),{recursive:true});
   await page.screenshot({path:path.join(root,'test-results/home.png'),fullPage:true});
   await page.getByRole('button',{name:'Start assessment'}).click();assert.equal(await page.locator('.assessment-card').count(),12);

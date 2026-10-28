@@ -20,6 +20,8 @@ function assignmentCount(v){return (typeof v==='number'||typeof v==='string'&&v.
 function assignmentAllowed(p){return !!p&&p.pilotCanAssign===true&&assignmentCount(p.expectedCount)>0&&['blockingCount','missingCUVersion','targetRubricIssues'].every(k=>assignmentCount(p[k])===0)&&assignmentCount(p.requirementCount)===assignmentCount(p.expectedCount)&&Array.isArray(p.blockers)&&p.blockers.length===0&&Array.isArray(p.issues)&&p.issues.length===0&&!!txt(p.employee)&&!!txt(p.profile);}
 function assignmentReset(){Object.assign(assignmentState,{values:{employeeEmail:'',cycleKey:''},preview:null,result:null,message:'',busy:false});}
 function assignmentSection(){
+ if(state.demo)return '<section class="card"><h2>Assign Assessment · sample only</h2><p>JR_4_6 is supported even before real employees exist. Assign this sample junior, then switch to Sample Junior to assess.</p><button id="demoAssignJunior">Assign sample JR_4_6</button><p id="demoAssignmentResult" role="status"></p></section>';
+
  const cycles=assignmentCycles();
  if(!assignmentSelectedCycle()){
   assignmentState.values.cycleKey=cycles.length===1?cycles[0].cycleKey:'';
