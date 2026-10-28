@@ -18,6 +18,14 @@ POST JSON; protected actions include `sessionToken` in the body. Response succes
 
 Editable assessment states: ASSIGNED, IN_PROGRESS. Saved item state: COMPLETED. Submission requires nonzero items, every item saved, no pending writes and no dirty drafts. The backend must independently validate these rules.
 
+### Client session lifecycle (2026-10-28)
+
+Owner-selected idle timeout: 15 minutes. Effective client deadline is the earlier of server `sessionExpiresAt` and the last trusted user input plus 15 minutes. The activity timestamp is stored per tab beside the token and is cleared on sign-out, timeout, demo entry or endpoint change. Refresh/restore, background requests and focus do not renew it. Missing/invalid timestamps fail closed; old caches require fresh OTP once.
+
+An expiry timer clears displayed identity, role navigation, assessment/development context and drafts even if the user is inactive. Focus/visibility/pageshow check elapsed time after suspended timers. Protected requests check the deadline before dispatch and after response, and pending requests are aborted when the session ends. Session generation/token checks prevent late profile, assignment or read responses from restoring identity. A write dispatched before timeout may still finish on the server; no automatic retries are made. Reauthenticate and read back before retrying an ambiguous write.
+
+Valid cached sessions use a distinct Checking your session screen during server validation; OTP sign-in is not used as a temporary loading screen. Server session expiry, permissions and ownership remain authoritative. This adds no backend fields, revocation endpoint or server-side idle policy; a client timeout clears this app's cached token rather than revoking it on the server.
+
 ## Assignment v2 — live mapping enabled (2026-10-26)
 
 Evidence supplied by the owner from Power Automate run history, extracted 2026-10-26. This is verified backend contract evidence; browser checks reproduce these shapes but are not a new authenticated backend acceptance run.

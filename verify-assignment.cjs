@@ -10,7 +10,7 @@ const server=http.createServer((q,r)=>{const f=q.url.split('?')[0].slice(1)||'in
  try{
  await page.goto(process.env.ASSIGN_SITE||`http://127.0.0.1:${server.address().port}`);
  // Avoid OTP mail: explicitly set a fixture verified session for isolated UI tests.
- await page.evaluate(()=>{sessionStorage.setItem(K.token,'fixture-token');sessionStorage.setItem(K.expires,new Date(Date.now()+3600000).toISOString());state.verified=true;state.profile={appRole:'MANAGER',employeeName:'Fixture Manager'};state.page='manager';render();});
+ await page.evaluate(()=>{sessionStorage.setItem(K.token,'fixture-token');sessionStorage.setItem(K.expires,new Date(Date.now()+3600000).toISOString());sessionStorage.setItem(K.activity,String(Date.now()));state.verified=true;state.profile={appRole:'MANAGER',employeeName:'Fixture Manager'};state.page='manager';render();});
  assert(await page.locator('#previewAssignment').isDisabled());assert(await page.locator('#createAssignment').isDisabled());
  await page.evaluate(m=>{window.COMPETENCY_CONFIG.assignmentContract=m;managerPage();},mapping);
  assert.equal(await page.locator('#assignCycle').inputValue(),'ETM_UI_DEMO_2026');
