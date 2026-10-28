@@ -28,7 +28,7 @@ The complete role-play experience works without live API calls. It uses a draft 
 
 Session tokens are held only in `sessionStorage`. Sign out clears tokens and reloads endpoint configuration. Server-side role, ownership, workflow, expiry and completeness enforcement remains authoritative. Hidden menus and role-play identities do not authenticate users. No credentials are added to the page URL.
 
-Connected sessions now expire after 15 minutes without user input, or at the server token expiry, whichever comes first. Clicks, typing and wheel input renew idle time while signed in; refresh, automatic API responses and returning to the tab do not. Active cached sessions show Checking your session while the server verifies them. Expired sessions remain at OTP sign-in and late responses cannot restore them. Existing cached sessions without an activity timestamp require fresh OTP once after this release. Run `node verify-session.cjs` for Employee/Manager timeout regressions with mocked APIs and controlled time.
+Connected sessions now expire after 30 minutes without user input, or at the server token expiry, whichever comes first. Clicks, typing and wheel input renew idle time while signed in; refresh, automatic API responses and returning to the tab do not. Active cached sessions show Checking your session while the server verifies them. Expired sessions remain at OTP sign-in and late responses cannot restore them. Existing cached sessions without an activity timestamp require fresh OTP once after this release. Run `node verify-session.cjs` for Employee/Manager timeout regressions with mocked APIs and controlled time.
 
 ## Run and verify
 

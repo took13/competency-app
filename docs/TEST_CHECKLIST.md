@@ -4,7 +4,7 @@
 
 Run `node verify-session.cjs`. Use `SESSION_SITE` for hosted assets with all API traffic mocked; no live OTP or writes. Controlled browser time tests both EMPLOYEE and MANAGER.
 
-- [x] Fifteen-minute inactivity expires automatically and clears identity/session/context; protected writes are blocked before network dispatch.
+- [x] Thirty-minute inactivity expires automatically and clears identity/session/context; protected writes are blocked before network dispatch.
 - [x] Expired refresh stays at OTP login with no automatic profile request or identity restoration.
 - [x] Active restore shows Checking your session, and refresh does not reset activity time.
 - [x] Late profile/protected responses after timeout cannot revive a session.

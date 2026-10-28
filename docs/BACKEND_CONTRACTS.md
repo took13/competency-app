@@ -20,7 +20,7 @@ Editable assessment states: ASSIGNED, IN_PROGRESS. Saved item state: COMPLETED. 
 
 ### Client session lifecycle (2026-10-28)
 
-Owner-selected idle timeout: 15 minutes. Effective client deadline is the earlier of server `sessionExpiresAt` and the last trusted user input plus 15 minutes. The activity timestamp is stored per tab beside the token and is cleared on sign-out, timeout, demo entry or endpoint change. Refresh/restore, background requests and focus do not renew it. Missing/invalid timestamps fail closed; old caches require fresh OTP once.
+Owner-selected idle timeout: 30 minutes. Effective client deadline is the earlier of server `sessionExpiresAt` and the last trusted user input plus 30 minutes. The activity timestamp is stored per tab beside the token and is cleared on sign-out, timeout, demo entry or endpoint change. Refresh/restore, background requests and focus do not renew it. Missing/invalid timestamps fail closed; old caches require fresh OTP once.
 
 An expiry timer clears displayed identity, role navigation, assessment/development context and drafts even if the user is inactive. Focus/visibility/pageshow check elapsed time after suspended timers. Protected requests check the deadline before dispatch and after response, and pending requests are aborted when the session ends. Session generation/token checks prevent late profile, assignment or read responses from restoring identity. A write dispatched before timeout may still finish on the server; no automatic retries are made. Reauthenticate and read back before retrying an ambiguous write.
 

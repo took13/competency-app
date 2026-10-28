@@ -20,7 +20,7 @@ const editable=()=>['ASSIGNED','IN_PROGRESS'].includes(upper(state.assessment?.s
 const title=a=>txt(a?.cycleName)|| (txt(a?.cycleKey)==='ETM_UI_DEMO_2026'?'ETM Technical Competency 2026':'Competency assessment');
 let toastTimer;
 function toast(message,error=false){clearTimeout(toastTimer);$('toast').textContent=message;$('toast').classList.toggle('error',error);$('toast').hidden=false;toastTimer=setTimeout(()=>$('toast').hidden=true,error?8000:4200)}
-const SESSION_IDLE_MS=15*60*1000;
+const SESSION_IDLE_MS=30*60*1000;
 let sessionTimer=null,lastActivityWrite=0;
 const sessionRequests=new Set();
 function sessionValid(){const now=Date.now(),last=Number(sessionStorage.getItem(K.activity));return !!sessionStorage.getItem(K.token)&&Date.parse(sessionStorage.getItem(K.expires))>now&&Number.isFinite(last)&&last>0&&last<=now&&now-last<SESSION_IDLE_MS;}
