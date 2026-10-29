@@ -333,10 +333,11 @@ async function openManagerDevelopment(){
  state.page='managerDevelopment';render();window.scrollTo(0,0);
  if(!state.demo&&contractReady('assessmentResult')&&contractReady('developmentPlan'))await refreshManagerDevelopment();
 }
+function selfDevelopmentAssignment(){return state.assignments.find(a=>txt(a.assessmentKey)===txt(state.assessment?.assessmentKey))||state.assignments[0];}
 function developmentRecord(){
  if(state.page==='managerDevelopment')return isManager()?developmentSubject:null;
  const r=state.demo?(demoIdentity!=='pratheep'?demoCase(demoIdentity):null):connectedDevelopment;
- return r&&txt(r.assessment?.employeeEmail).toLowerCase()===txt(state.profile.employeeEmail).toLowerCase()?r:null;
+ return r&&txt(r.assessment?.employeeEmail).toLowerCase()===txt(state.profile.employeeEmail).toLowerCase()&&(state.demo||!selfDevelopmentAssignment()||txt(r.assessment?.assessmentKey)===txt(selfDevelopmentAssignment().assessmentKey))?r:null;
 }
 function developmentPage(){
  const record=developmentRecord(),a=record?.assessment,confirmed=upper(a?.status)==='CONFIRMED';
@@ -400,7 +401,7 @@ document.addEventListener('click',async e=>{
  if(b.id==='confirmReview'&&!workspaceBusy){$('confirmManager').showModal();}
  if(b.id==='cancelManager')$('confirmManager').close();
  if(b.id==='doConfirmManager')await confirmManagerReview(b);
- if(b.id==='loadDevelopment'&&!workspaceBusy&&state.page==='development'&&state.assignments.length){workspaceBusy=true;const r={assessment:{...state.assignments[0],employeeEmail:state.profile.employeeEmail},planKey:state.assignments[0].planKey||'DEV|'+txt(state.assignments[0].assessmentKey)+'|R1',actions:[]};try{await readDevelopment(r);if(txt(r.assessment.employeeEmail).toLowerCase()!==txt(state.profile.employeeEmail).toLowerCase())throw new Error('Invalid subject');connectedDevelopment=r;renderDevelopmentRecord(r);}catch(e){fail(e);}finally{workspaceBusy=false;if($("reloadManagerDevelopment"))$("reloadManagerDevelopment").disabled=false;}}
+ if(b.id==='loadDevelopment'&&!workspaceBusy&&state.page==='development'&&state.assignments.length){workspaceBusy=true;const selected=selfDevelopmentAssignment();const r={assessment:{...selected,employeeEmail:state.profile.employeeEmail},planKey:selected.planKey||'DEV|'+txt(selected.assessmentKey)+'|R1',actions:[]};try{await readDevelopment(r);if(txt(r.assessment.employeeEmail).toLowerCase()!==txt(state.profile.employeeEmail).toLowerCase())throw new Error('Invalid subject');connectedDevelopment=r;renderDevelopmentRecord(r);}catch(e){fail(e);}finally{workspaceBusy=false;if($("reloadManagerDevelopment"))$("reloadManagerDevelopment").disabled=false;}}
  if(b.id==='manageDevelopment')await openManagerDevelopment();
  if(b.id==='reloadManagerDevelopment'&&!workspaceBusy&&state.page==='managerDevelopment'&&isManager())await refreshManagerDevelopment();
  if(b.id==='createPlan'&&!workspaceBusy&&state.page==='managerDevelopment'&&isManager()){const r=developmentRecord();if(!r||upper(r.assessment.status)!=='CONFIRMED')return;workspaceBusy=true;try{if(state.demo){r.planStatus='DRAFT';r.actions=resultRows(r.assessment).filter(i=>i.gap>0).map((i,n)=>({actionKey:'DEMO|ACTION|'+n,competencyName:txt(i.competencyName),status:'DRAFT'}));}else{await createDevelopment(r);}renderDevelopmentRecord(r);}catch(err){if(!state.demo)r.loadError=true;developmentFailure(err);if(state.page==='managerDevelopment')developmentPage();}finally{workspaceBusy=false;if($("reloadManagerDevelopment"))$("reloadManagerDevelopment").disabled=false;}}
