@@ -101,7 +101,7 @@ async function api(kind,action,payload={}){
  const authAction=['request_otp','verify_otp'].includes(action);
  if(!authAction&&!sessionValid()){expireSession();throw staleSession();}
  const url=sessionStorage.getItem(K[kind]);if(!url)throw new Error('Missing endpoint');
- const generation=state.generation,token=sessionStorage.getItem(K.token),c=new AbortController(),timer=setTimeout(()=>c.abort(),25000);sessionRequests.add(c);
+ const generation=state.generation,token=sessionStorage.getItem(K.token),c=new AbortController(),timer=setTimeout(()=>c.abort(),kind==="assessment"&&action==="create_pilot_assignment"?110000:25000);sessionRequests.add(c);
  try{const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...(!authAction?{sessionToken:token}:{}),...payload}),signal:c.signal,credentials:'omit',referrerPolicy:'no-referrer'});let d;try{d=await response.json()}catch{throw new Error('Invalid response')}
   if(generation!==state.generation||(!authAction&&token!==sessionStorage.getItem(K.token)))throw staleSession();
   if(!authAction&&!sessionValid()){expireSession();throw staleSession();}
