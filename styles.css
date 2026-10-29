@@ -35,3 +35,5 @@ nav button.active{box-shadow:inset 3px 0 var(--brand-sky)}
 #dashboardDiscipline { max-width:100%; margin-bottom:20px; }
 #dashboardDetail { margin-top:24px; }
 @media(max-width:600px){.statline{flex-wrap:wrap;gap:12px}.demo-toolbar select{max-width:100%;min-width:0}.demo-toolbar{flex-wrap:wrap}.metrics{grid-template-columns:1fr 1fr}.metrics .card{padding:14px}.metrics strong{overflow-wrap:anywhere}}
+
+.level-name{display:block;max-width:145px;font-size:11px;overflow-wrap:anywhere}.jlr-guide{margin:14px 0}.jlr-entry{border-top:1px solid var(--line);padding:8px 0;overflow-wrap:anywhere}.jlr-entry p{margin:6px 0}.levels button span{white-space:normal}.level-select{max-width:100%;font-size:20px}
