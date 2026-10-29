@@ -1,7 +1,7 @@
 // Transport mocks reproduce owner-supplied v2 run-history shapes; no live writes.
 const fs=require('fs'),http=require('http'),assert=require('node:assert/strict'),{chromium}=require('playwright');
 const config={authApiUrl:'https://auth.test/api',employeeApiUrl:'https://employee.test/api',managerApiUrl:'https://manager.test/api',assessmentApiUrl:'https://assignment.test/api',developmentApiUrl:'https://development.test/api'};
-const sandbox={window:{}};require('vm').runInNewContext(fs.readFileSync(__dirname+'/config.js','utf8'),sandbox);const mapping=JSON.parse(JSON.stringify(sandbox.window.COMPETENCY_CONFIG.assignmentContract));config.assessmentCycles=JSON.parse(JSON.stringify(sandbox.window.COMPETENCY_CONFIG.assessmentCycles));
+const sandbox={window:{}};require('vm').runInNewContext(fs.readFileSync(__dirname+'/config.js','utf8'),sandbox);const mapping=JSON.parse(JSON.stringify(sandbox.window.COMPETENCY_CONFIG.assignmentContract));config.assessmentCycles=JSON.parse(JSON.stringify(sandbox.window.COMPETENCY_CONFIG.assessmentCycles)).filter(c=>c.cycleKey==="ETM_UI_DEMO_2026");
 const server=http.createServer((q,r)=>{const f=q.url.split('?')[0].slice(1)||'index.html';if(f==='config.js'){r.setHeader('Content-Type','text/javascript');return r.end('window.COMPETENCY_CONFIG='+JSON.stringify(config));}if(!['index.html','app.js','assignment.js','styles.css'].includes(f))return r.writeHead(404).end();r.setHeader('Content-Type',f.endsWith('.js')?'text/javascript':f.endsWith('.css')?'text/css':'text/html');r.end(fs.readFileSync(__dirname+'/'+f));});
 (async()=>{
  await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
