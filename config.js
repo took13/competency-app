@@ -1,6 +1,12 @@
 window.COMPETENCY_CONFIG = {
   "assessmentCycles": [
     {
+      "label": "UAT Gate 2 - email notifications 30 Oct 2026",
+      "cycleKey": "UAT_GATE2_20261030_01",
+      "type": "PILOT",
+      "active": true
+    },
+    {
       "label": "รอบทดลองประเมิน ETM 2026 — PILOT",
       "cycleKey": "ETM_UI_DEMO_2026",
       "type": "PILOT",
@@ -144,3 +150,4 @@ window.COMPETENCY_CONFIG = {
     }
   }
 };
+
