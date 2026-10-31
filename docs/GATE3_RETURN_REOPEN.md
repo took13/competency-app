@@ -140,7 +140,7 @@ The fixture interpreter is not Microsoft's engine and does not prove connector-s
 
 If WorkflowLock is nonempty after an ambiguous timeout/error: stop mutations for that record, inspect the named producer run and actual HTTP response separately, and establish that the run is no longer active. Read the header, related items/actions and TransitionHistory before clearing anything. For ACTION_REOPEN_REQUESTED without ACTION_REOPENED, compare the persisted previous action/parent state with the actual action write and failed parent step. Finish/reconcile the intended parent state and history deliberately, or restore from the preserved before state according to the support decision. Only then clear the exact affected lock. Never clear a running operation, bulk-clear locks, blindly retry a write, delete history or resend mail without checking the existing EventKey and mailbox. Retain recovery evidence. No automated privileged recovery endpoint is added.
 
-## Current deployment checkpoint
+## Previous deployment checkpoint — before Import recovered
 
 **Metadata added; candidate flows and frontend NOT deployed. Gate 3 remains OPEN.**
 
@@ -149,4 +149,14 @@ The supported My flows → Import → Import Package (Legacy) route remained Loa
 Private import packages are prepared from the supplied originals with only definition.json replaced. Original manifests still specify Update and existing connections. When Legacy Import works, import Employee, Manager and Development as **Update to their existing original IDs**, retain the existing service-account SharePoint/Outlook connections, run Flow checker and inspect actual deployed definitions before use. Do not choose Create new. Keep the original supplied exports as rollback packages; leave additive columns/history in place on rollback rather than deleting evidence. No push to main or hosting deployment has been performed.
 
 Next required external change: the Legacy Import page must reach its Upload form. After import/checker verification, prepare a fresh isolated synthetic Gate 3 cycle, obtain fresh user-operated Employee/Reviewer sign-ins, and collect actual HTTP plus business-state and unchanged/intentional notification evidence. Do not use Gate 2 assessment 7 / plan 4 for mutation. The live acceptance matrix above remains pending in full.
+
+## Current deployment checkpoint — Employee imported
+
+31 October 2026 continuation: Legacy Import recovered. Employee-Gate3.zip was uploaded, matched as **Update to original Employee flow 004f1bb4-7c5e-49ec-9571-23f7495779c9**, and imported successfully. Existing gpscrpauser service-account SharePoint and Outlook connections were selected; no new connection or permission was created. Portal success linked the original flow ID. Designer Flow checker displayed **Errors (0), Warnings (0), No errors found**. Import left the flow Off; it was enabled and Details read back **On**. No additional designer Save was used.
+
+Actual waiting HTTP client test after enabling Employee: `get_my_assignments` with an intentionally invalid synthetic session returned **401**, `success: false`, and the expected Invalid session message, observed 2026-10-31T10:28:00.785Z (17:28 Asia/Bangkok). This tests the live session-denial/read route only, not successful authenticated reads, writes, locks or Return/resubmit. Evidence: gate3-employee-invalid-session-http.json, gate3-employee-import-success.png and gate3-employee-flow-checker.png in the chat output directory. No business record or notification was mutated by that request.
+
+**Manager and Development remain NOT imported; frontend remains NOT deployed; Gate 3 remains OPEN.** The latest continuation opened the Manager upload file chooser in `work/candidate-packages`, where Manager-Gate3.zip is present. Browser file-chooser control did not supply a usable chooser handle. Native Windows selection worked for Employee earlier, but the current Open dialog became unresponsive to automation: accessibility set-value timed out, and refreshed window binding still reported Accessibility state unavailable. Manager upload has not been observed to start, and Import has not been clicked for it. A manual file selection is required to reach the review page; stop before Import so Update target and original connections can be checked by the agent.
+
+Remaining sequence: select Manager-Gate3.zip → verify original Manager Update target/connections → import/checker/On; then the same for Development. Verify deployed definitions as available, then create an isolated synthetic Gate 3 cycle and collect authenticated HTTP/state/notification acceptance. Do not mutate the completed Gate 2 records. No push or hosting deployment has occurred.
 
