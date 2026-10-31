@@ -160,3 +160,11 @@ Actual waiting HTTP client test after enabling Employee: `get_my_assignments` wi
 
 Remaining sequence: select Manager-Gate3.zip → verify original Manager Update target/connections → import/checker/On; then the same for Development. Verify deployed definitions as available, then create an isolated synthetic Gate 3 cycle and collect authenticated HTTP/state/notification acceptance. Do not mutate the completed Gate 2 records. No push or hosting deployment has occurred.
 
+
+## Latest deployment checkpoint — all three imported
+
+31 October 2026: Manager and Development were subsequently imported successfully as Update to original IDs dabcc3a1-c892-4a60-b368-3b72f57dfc3e and 107de60a-71a1-4392-801c-5fe3066f8441. Existing service-account SharePoint/Outlook connections were retained. Both designer Flow checkers displayed Errors (0), Warnings (0). All three updated flows read back On. Prior checkpoint blockers above are historical. No new connection, owner or permission was created. Hosted frontend is unchanged.
+
+Actual HTTP negative probes of Manager return_assessment and Development reopen_development_action each returned 401, success false, Invalid session at 2026-10-31T16:46:39.998Z using an intentionally invalid synthetic session. These prove live action routing/session rejection only, not successful transitions or lock behavior. No business mutation occurred.
+
+Fresh cycle UAT_GATE3_20261031_01 was created and read back as PILOT, DRAFT and active, with explicit synthetic-only notes. The local preview exposes only this cycle for assignment; repository configuration and hosting were not changed. Manager sign-in is awaiting user-operated OTP. Employee sign-in, authenticated lifecycle/negative/concurrency checks, actual SharePoint readback, notifications and deployed-definition export comparison remain pending. Gate 3 remains OPEN. Gate 2 assessment 7 / plan 4 were not mutated.
