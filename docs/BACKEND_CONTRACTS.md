@@ -1,5 +1,15 @@
 # Backend contract evidence and enablement
 
+## Gate 3 candidate contracts (31 October 2026)
+
+Return/Reopen implementation is prepared and fixture-tested, pending supported import, Microsoft Flow checker and live HTTP/state acceptance. It is **not a live-verified contract yet**. The original mappings below remain the evidence for Gate 1–2.
+
+Candidate additive reads expose `gate3Ready`, `revision` and `transitionHistory`. Only those responses activate new controls. Manager `return_assessment` accepts assessmentKey/reason/expectedRevision. Development `return_development_plan` accepts planKey/reason/expectedRevision; `reopen_development_action` additionally accepts actionKey. All include the existing sessionToken. No client actor, reviewer override or notification recipient is accepted. Reason is 1–2000 trimmed characters. Expected status/revision conflicts are 409; original session/role/scope guards remain authoritative.
+
+Existing mutations carry optional expectedRevision when advertised. Revision-1 happy paths retain their payload compatibility. After Return/Reopen, expectedRevision is required, and manager confirmation requires a fresh review in the current assessment round. Completed development actions require explicit Reopen before normal editing. Gate 2 notification identities and groups are retained; repeated reservations suppress repeat-event mail, and Return/Reopen itself sends no mail.
+
+See [Gate 3 implementation, validation limits and recovery SOP](GATE3_RETURN_REOPEN.md) before activating these actions. Fixture execution is not Microsoft-engine or live connector evidence.
+
 ## Auth and Employee — implemented
 
 Source: prior UI v2 contract notes and read-only Workspace v0.3 reference. These are implementation evidence, not a new live API test.

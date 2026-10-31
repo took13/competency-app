@@ -1,5 +1,11 @@
 # Competency Hub · UI v2
 
+## Gate 3 continuation — prepared, not live-UAT PASS
+
+Return Assessment, Return Development Plan and Reopen Completed Action controls are gated by the backend's additive `gate3Ready` read contract. Existing backend responses leave them unavailable. Demo and Employee development remain without these mutation controls. New metadata, workflow locking, revision checks, preserved history, notification behavior and support recovery are documented in `docs/GATE3_RETURN_REOPEN.md`; check its deployment status before use.
+
+`tools/build-gate3.cjs <private-export-directory> <private-candidate-directory>` prepares definitions from the owner exports. Never commit exports or candidate packages containing internal configuration. Run `node verify-gate3-flows.cjs <private-export-directory>` and `node verify-gate3-ui.cjs <private-export-directory>` for offline generated-graph and browser integration checks. These do not replace Flow checker or fresh live UAT. No endpoints, permissions, owners or connections are replaced.
+
 Static, root-hosted application for the existing `took13/competency-app` Azure Static Web App. No framework, build step, CDN, external fonts or additional Azure resource is required. The existing GitHub Actions workflow remains unchanged (`app_location: "/"`, `output_location: ""`).
 
 ## Available now

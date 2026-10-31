@@ -1,6 +1,8 @@
 # Gate 3 — Return / Reopen: inspection and first safeguard increment
 
-31 October 2026, Asia/Bangkok. **IN PROGRESS — NOT IMPLEMENTED / NOT LIVE-UAT PASS.**
+31 October 2026, Asia/Bangkok. **IN PROGRESS — implementation prepared and offline-tested; NOT LIVE-UAT PASS.**
+
+The original inspection below is retained as dated findings. The continuation described at the end supersedes its export blocker and proposed-contract status.
 
 ## Authoritative inputs and inspected baseline
 
@@ -73,11 +75,78 @@ New verify-flow-change.cjs passed mutation tests for widened authorization, chan
 
 For each live test record caller identity, actual HTTP code/body semantics, authoritative backend state, notification/log outcome, failure/fix/retest separately. Flow Succeeded alone is insufficient. Do not use prior Gate 2 completed assessment ID 7 / plan ID 4 as mutable Gate 3 fixtures.
 
-## Blocking prerequisite for backend changes
+## Original export blocker — resolved by owner-supplied packages
 
 On this inspection, Manager Export → Package (.zip) remained Loading, with no export form or downloadable package after repeated state checks. The designer can be read, but no fresh full definition was obtained. Do not overwrite a live flow with a dated package while current triggers/connections/business graph cannot be compared. No browser security/privacy settings were changed to work around export.
 
 Next concrete step: obtain fresh supported exports for Employee, Manager and Development (same original flow IDs), compare with the archived Gate 2 baselines using the guard, then implement minimal metadata and one state transition at a time. The absence of metadata is an implementation prerequisite, not a request to redesign architecture or grant permissions. Gate 3 remains open; no Return/Reopen endpoint or UI control is advertised as available.
 
+This was the status at the first inspection; the owner subsequently supplied all three exports and removed this prerequisite.
+
 Live notification list readback on 31 October 2026: 9 displayed rows, all SENT, 9 distinct row representations. No Gate 3 writes were made. This count does not assert a fresh unique-column-settings verification.
+
+## Continuation from supplied 31 October exports
+
+Employee `competency-employee_20261031094437.zip`, Manager `competency-manager_20261031094538.zip` and Development `competency-development_20261031094639.zip` were extracted into private working storage. All three differ from Gate 2 prepared definitions only at `metadata.clientLastModifiedTime` and `metadata.connectionKeySavedTimeKey`. Executable actions, triggers and connections match. This also closes the previous Development whole-definition-comparison limitation for that dated baseline. It does not change H's configuration-only limitation.
+
+Implemented source: `tools/build-gate3.cjs` builds candidates from those exports; `app.js` provides backend-advertised controls. No signed URLs are added to source, tests or docs. Private JSON and packages stay outside Git.
+
+### Minimal metadata and mutual exclusion
+
+Added to the existing Assessment Assignment and Development Plan lists through supported List Settings UI, retaining existing inherited permissions:
+
+| Internal name | Type | Settings |
+|---|---|---|
+| WorkflowLock | Single line of text, 255 | Optional, not unique, empty default, not added to default view |
+| TransitionHistory | Multiple lines of text | Optional, plain text, append changes disabled, not added to default view; JSON array |
+
+List Settings read back both columns on both lists. No existing item data or status choice was edited. No Action-list schema is changed.
+
+All assessment and existing-plan mutations acquire an ETag-conditional lock on their parent through the **existing SharePoint connection**, after original session/profile/role/scope checks. GET supplies the actual server ETag; MERGE uses that exact If-Match, never `*`, and disables connector retry. Conflicts/ambiguous claims return a sanitized 409. The lock guard checks latest status and Revision against the authorized header read. A held lock rejects another mutation; there is no automatic expiry/unlock. This uses SharePoint's documented [ETag / If-Match behavior](https://learn.microsoft.com/en-us/sharepoint/dev/sp-add-ins/working-with-lists-and-list-items-with-rest) and the existing [SharePoint HTTP request operation](https://learn.microsoft.com/en-gb/connectors/sharepointonline/). No new connection, identity, permission or resource is introduced. Trigger concurrency settings remain unchanged.
+
+Expected business validation failures release their owned lock before responding. Successful business paths release before the original success response; notification groups remain after that response. An unexpected connector failure may intentionally leave a lock for support reconciliation. This is recoverable mutual exclusion, not a multi-record SharePoint transaction. Read responses can be transient during a mutation; mutation readback and the server lock remain authoritative.
+
+### New contracts and preserved history
+
+| API/action | Request beyond sessionToken | Success |
+|---|---|---|
+| Manager / return_assessment | assessmentKey, reason, expectedRevision | 200, same key, RETURNED, revision + 1 |
+| Development / return_development_plan | planKey, reason, expectedRevision | 200, same key, DRAFT, revision + 1 |
+| Development / reopen_development_action | planKey, actionKey, reason, expectedRevision | 200, same keys, PLANNED action, parent status, revision + 1 |
+
+Reason is trimmed and required, 1–2000 characters (400 on missing/blank/too long). Current revision and allowed source state are required (409). Original server authorization denies employee writes and out-of-scope managers. The new actions do not accept caller identity, recipient or authorization scope from the client.
+
+Assessment Return accepts SUBMITTED only. It preserves a snapshot of self evidence/levels and manager decisions/comments in TransitionHistory and updates the same header to RETURNED. Employee save and submit accept RETURNED, retain existing completeness guards, and resubmit records a transition. Manager item saves stamp the current header Revision. At Revision > 1, only items reviewed in that round count toward confirmation; old numeric decisions remain stored and in the Return snapshot. The frontend preserves their previous value internally and requires a fresh review. CONFIRMED assessment reopening is excluded because dependent development snapshots require a separate contract.
+
+Plan Return accepts IN_PROGRESS only and changes the same plan to DRAFT. Completed actions remain completed and cannot be edited through ordinary save. Starting a corrected plan accepts valid completed actions alongside planned ones. Reopen accepts a COMPLETED action in its authorized plan: persist ACTION_REOPEN_REQUESTED with old action content/completion and old parent completion, change the action to PLANNED, then commit ACTION_REOPENED and parent Revision. A COMPLETED parent returns to IN_PROGRESS; DRAFT/IN_PROGRESS parents retain that state. Previous CompletedAt is retained while reopened, and history preserves it when recompletion writes a new timestamp. Repeated completion of an already-completed action returns 409.
+
+Reads advertise `gate3Ready: true`, numeric `revision` and parsed `transitionHistory`. Older revision-1 clients can retain existing payloads. After Return/Reopen, writes require expectedRevision; a stale old client fails closed. New UI sends expectedRevision only after the server advertises the new contract. New controls are absent in Demo and in Employee development views. Ordinary existing API names and response semantics remain intact with additive read fields.
+
+History capacity is bounded at 50,000 characters before appending; capacity exhaustion returns 409 for support review, without dropping prior history. No tokens, OTPs or signed endpoints are recorded. This is Gate 3 transition metadata, not Gate 4's generic audit ledger.
+
+### Notification decision
+
+Gate 2 notification actions, subjects, recipients, claim/send dependencies, retry policies and EventKeys are structurally unchanged. Return/Reopen sends no new mail. Resubmit/restart/recomplete reuse prior reservations and therefore do **not** promise another message for an already-reserved event. This is deliberate scope preservation; repeated-event notifications need a separately agreed revision-aware event policy. Ordinary save/read/409 paths do not add mail events.
+
+### New tests and their limits
+
+`verify-gate3-flows.cjs <private-export-directory>` builds and executes actual generated candidate graphs in the small fixture interpreter `tools/flow-fixture-runtime.cjs`. It checks graph references, sibling dependencies, maximum nesting, unchanged authorization/connections/notification groups, missing reason, role/scope denials, stale/duplicate transitions, Return/edit/resubmit/fresh-review/confirm, concurrent ETag claims, plan Return, completed-action preservation, Reopen/recomplete, existing reservation suppression and a failed final parent update that retains a durable intent and lock. Passed.
+
+`verify-gate3-ui.cjs <private-export-directory>` runs Chrome against the same generated graphs with in-memory connectors. It tests reason entry and escaping, employee returned editing/resubmit, revision payloads, required fresh manager review, Return/Reopen controls, protected completed actions, employee read-only development and 320/390/768/1440 widths. Passed.
+
+The fixture interpreter is not Microsoft's engine and does not prove connector-schema acceptance, real ETag headers, import success, delivered HTTP, real SharePoint outcomes or mailbox/log behavior. Those remain live acceptance items. All seven existing browser suites passed after the UI change; demo remains isolated.
+
+### Support recovery procedure
+
+If WorkflowLock is nonempty after an ambiguous timeout/error: stop mutations for that record, inspect the named producer run and actual HTTP response separately, and establish that the run is no longer active. Read the header, related items/actions and TransitionHistory before clearing anything. For ACTION_REOPEN_REQUESTED without ACTION_REOPENED, compare the persisted previous action/parent state with the actual action write and failed parent step. Finish/reconcile the intended parent state and history deliberately, or restore from the preserved before state according to the support decision. Only then clear the exact affected lock. Never clear a running operation, bulk-clear locks, blindly retry a write, delete history or resend mail without checking the existing EventKey and mailbox. Retain recovery evidence. No automated privileged recovery endpoint is added.
+
+## Current deployment checkpoint
+
+**Metadata added; candidate flows and frontend NOT deployed. Gate 3 remains OPEN.**
+
+The supported My flows → Import → Import Package (Legacy) route remained Loading. The existing v3=false presentation route and reload also remained Loading. The owner tried opening Legacy Import manually and reported the same result. No Upload control became available; no candidate package was uploaded or imported, and no original flow was stopped, replaced, enabled/disabled or saved. Browser security/privacy settings, owners, connections and permissions were not altered. The additive empty metadata columns are the only live change in this continuation.
+
+Private import packages are prepared from the supplied originals with only definition.json replaced. Original manifests still specify Update and existing connections. When Legacy Import works, import Employee, Manager and Development as **Update to their existing original IDs**, retain the existing service-account SharePoint/Outlook connections, run Flow checker and inspect actual deployed definitions before use. Do not choose Create new. Keep the original supplied exports as rollback packages; leave additive columns/history in place on rollback rather than deleting evidence. No push to main or hosting deployment has been performed.
+
+Next required external change: the Legacy Import page must reach its Upload form. After import/checker verification, prepare a fresh isolated synthetic Gate 3 cycle, obtain fresh user-operated Employee/Reviewer sign-ins, and collect actual HTTP plus business-state and unchanged/intentional notification evidence. Do not use Gate 2 assessment 7 / plan 4 for mutation. The live acceptance matrix above remains pending in full.
 
