@@ -305,7 +305,7 @@ function applyDevelopmentPlan(r,plan){
  if(!plan||!Array.isArray(plan.actions)||txt(plan.planKey)!==txt(r.planKey)||txt(plan.assessmentKey)!==txt(r.assessment.assessmentKey)||txt(plan.employeeEmail).toLowerCase()!==txt(r.assessment.employeeEmail).toLowerCase()||!['DRAFT','IN_PROGRESS','COMPLETED'].includes(upper(plan.status))||!txt(plan.reviewerEmail))throw new Error('Invalid plan subject');
  const gap=managerNumber(plan.gapItemCount);
  if(gap===null||gap!==plan.actions.length||new Set(plan.actions.map(x=>txt(x.actionKey))).size!==plan.actions.length||plan.actions.some(x=>!txt(x.actionKey)))throw new Error('Invalid plan actions');
- Object.assign(r,{gate3Ready:plan.gate3Ready===true,revision:plan.revision,transitionHistory:plan.transitionHistory,planStatus:upper(plan.status),reviewerEmail:plan.reviewerEmail,gapItemCount:gap,actions:plan.actions.slice().sort((a,b)=>Number(a.displayOrder)-Number(b.displayOrder))});
+ Object.assign(r,{gate3Ready:plan.gate3Ready===true,gate4Ready:plan.gate4Ready===true,auditHistory:plan.auditHistory,auditHistoryMayBeTruncated:plan.auditHistoryMayBeTruncated===true,revision:plan.revision,transitionHistory:plan.transitionHistory,planStatus:upper(plan.status),reviewerEmail:plan.reviewerEmail,gapItemCount:gap,actions:plan.actions.slice().sort((a,b)=>Number(a.displayOrder)-Number(b.displayOrder))});
 }
 async function readDevelopment(r){
  r.loaded=false;r.loadError=true;
@@ -471,7 +471,17 @@ document.addEventListener('click',e=>{if(e.target.closest('#demoAssignJunior')&&
 
 // Gate 3 controls activate only after the backend advertises the new contract.
 function gate3Revision(r){if(r?.gate3Ready!==true)return {};const n=Number(r.revision);if(!Number.isInteger(n)||n<1)throw new Error('Invalid workflow revision');return {expectedRevision:n};}
-function gate3Context(r){if(r?.gate3Ready!==true||!Array.isArray(r.transitionHistory)||!r.transitionHistory.length)return '';const last=r.transitionHistory.filter(e=>e.eventType==='ASSESSMENT_RETURNED').at(-1);return (upper(r.status)==='RETURNED'&&last?'<div class="preview-note" role="status"><b>Returned for changes</b><p>'+esc(last.reason)+'</p></div>':'')+'<details class="preview-note"><summary>Return / reopen history</summary>'+r.transitionHistory.map(e=>'<p><b>'+esc(e.eventType)+'</b> · '+esc(e.at)+' · '+esc(e.actor)+(e.reason?'<br>Reason: '+esc(e.reason):'')+'</p>').join('')+'</details>';}
+function gate3Context(r){
+ if(r?.gate3Ready!==true)return '';
+ const events=[...(Array.isArray(r.transitionHistory)?r.transitionHistory:[]),...(r.gate4Ready===true&&Array.isArray(r.auditHistory)?r.auditHistory:[])].filter(e=>e&&typeof e==='object');if(!events.length)return '';
+ events.sort((a,b)=>String(a.at||'').localeCompare(String(b.at||'')));
+ const last=events.filter(e=>e.eventType==='ASSESSMENT_RETURNED').at(-1);
+ return (upper(r.status)==='RETURNED'&&last?'<div class="preview-note" role="status"><b>Returned for changes</b><p>'+esc(last.reason)+'</p></div>':'')+'<details class="preview-note"><summary>Revision history</summary>'+(r.auditHistoryMayBeTruncated?'<p>Showing recent audit events. Contact support for the complete archive.</p>':'')+events.map(e=>{
+  const committed=e.phase==='COMMITTED',pending=e.phase==='REQUESTED'&&!events.some(x=>x.eventId===e.eventId&&x.phase==='COMMITTED');
+  const detail=['before','proposed','after','beforeParent','afterParent','items','action','actions'].filter(k=>e[k]!==undefined).map(k=>'<details><summary>'+esc(({before:'Before',proposed:'Requested changes',after:'After',beforeParent:'Previous workflow',afterParent:'Resulting workflow',items:'Assessment snapshot',action:'Action snapshot',actions:'Plan actions'})[k])+'</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">'+esc(JSON.stringify(e[k],null,2))+'</pre></details>').join('');
+  return '<article><p><b>'+esc(e.eventType)+'</b> · '+esc(e.at)+' · '+esc(e.actor)+(committed?' · Recorded':pending?' · Pending reconciliation':e.phase==='REQUESTED'?' · Request recorded':' · Legacy transition')+(e.reason?'<br>Reason: '+esc(e.reason):'')+(e.revision!==undefined?'<br>Review revision: '+esc(e.revision):'')+'</p>'+detail+'<details><summary>Reference</summary><p>'+esc(e.correlationId||e.runId||'Unavailable')+'</p></details></article>';
+ }).join('')+'</details>';
+}
 function gate3ManagerControls(a,eligible){return !state.demo&&isManager()&&eligible&&a.gate3Ready===true?'<section class="preview-note"><label for="gate3AssessmentReason">Reason for returning the assessment</label><textarea id="gate3AssessmentReason" maxlength="2000"></textarea><button id="gate3ReturnAssessment">Return to employee</button></section>':'';}
 function gate3DevelopmentControls(r){if(state.demo||r?.gate3Ready!==true||!developmentReviewer(r)||!r.loaded||r.loadError)return '';return '<section class="preview-note"><label for="gate3DevelopmentReason">Reason for return / reopen</label><textarea id="gate3DevelopmentReason" maxlength="2000"></textarea>'+(r.planStatus==='IN_PROGRESS'?'<button id="gate3ReturnPlan">Return plan for correction</button>':'')+r.actions.map((x,n)=>upper(x.status)==='COMPLETED'?'<button data-gate3-reopen="'+n+'">Reopen completed action '+(n+1)+'</button>':'').join('')+'</section>';}
 async function gate3Transition(kind,n){

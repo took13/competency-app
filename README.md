@@ -1,5 +1,9 @@
 # Competency Hub · UI v2
 
+## Gate 4 candidate — live acceptance blocked on audit-store ACLs
+
+Audit/revision candidates and the read-only history UI are implemented on the Gate 4 branch. Fresh Employee/Manager/Development exports match deployed Gate 3. Offline generated-graph, two-round 12-item lifecycle, role/scope, concurrency, failure and browser regression checks pass. A measured cumulative-history capacity limit justified one separate Audit Event list; its columns/indexes are provisioned, but native access restriction is not yet verified. No Gate 4 flow or hosted UI deployment is claimed. See `docs/GATE4_AUDIT_REVISION.md` for evidence, current blocker and exact rollout steps. Use `tools/build-gate4-event-store.cjs` for private candidates; the cumulative instrumentation helper is not a deployment path.
+
 ## Gate 3 continuation — core live acceptance verified
 
 Return Assessment, Return Development Plan and Reopen Completed Action controls are gated by the backend's additive `gate3Ready` read contract. Existing backend responses leave them unavailable. Demo and Employee development remain without these mutation controls. New metadata, workflow locking, revision checks, preserved history, notification behavior and support recovery are documented in `docs/GATE3_RETURN_REOPEN.md`. The isolated synthetic live lifecycle, 11 HTTP denials, real concurrent claim test and all three post-import whole-definition comparisons passed on 1 November 2026. Hosted UI rollout remains a reviewed step. Connected managers can reopen authorized confirmed context using **Open an existing assessment**, then the existing **Manage development plan** / **Create / open** route.
