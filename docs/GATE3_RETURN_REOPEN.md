@@ -1,8 +1,8 @@
 # Gate 3 — Return / Reopen: inspection and first safeguard increment
 
-1 November 2026, Asia/Bangkok. **Core live lifecycle/safeguard acceptance PASS. All three post-import definitions compared. Ready for code review; hosted frontend unchanged.**
+1 November 2026, Asia/Bangkok. **Core live lifecycle/safeguard acceptance PASS. All three post-import definitions compared. Tested frontend deployed and verified on 1 November 2026.**
 
-The current acceptance table and latest continuation below supersede dated preparation/import checkpoints. Raw exported packages stay private. No merge or hosting deployment is implied by this report.
+The current acceptance table and latest continuation below supersede dated preparation/import checkpoints. Raw exported packages stay private. Earlier preparation checkpoints are historical; the production rollout below supersedes their unmerged/undeployed status.
 
 The original inspection below is retained as dated findings. The continuation described at the end supersedes its export blocker and proposed-contract status.
 
@@ -203,3 +203,11 @@ The portal subsequently recovered for Manager and Employee without browser secur
 The local branch and review patch contain code, offline tests and documentation only. Raw source/deployed packages and sessions remain excluded. The existing hosting workflow deploys main pushes and main-targeted pull requests; review should use the original handover branch codex/management-demo-release as base to avoid an incidental hosting deployment. Merge/hosting rollout is a separate reviewed step. Older clients cannot mutate returned/reopened revisions without expectedRevision; deploy the tested frontend before normal users operate those records. Gate 1–2 revision-1 contracts remain compatible.
 
 Run node verify-deployed-flow.cjs for comparator mutation checks and node tools/check-deployed-flow.cjs <candidate.json> <private-deployed.json> <safe-report.json> for the exact post-import review. The raw check-flow-change.cjs still rejects every unapproved difference.
+
+## Production rollout — 1 November 2026
+
+[PR #1](https://github.com/took13/competency-app/pull/1) merged to main as a768f94396c6f6376e9e52a3447c1adc1294127e, publishing implementation 7c653c34a21eee4068122868a4dc7f263085b049 through the unchanged [Azure workflow](https://github.com/took13/competency-app/actions/runs/41267493043), which completed successfully. The merged implementation tree matches the tested branch. [The hosted application](https://orange-forest-067e00310.1.azurestaticapps.net) returned HTTP 200 for index.html, app.js, assignment.js, styles.css and config.js; every asset matched its merged git blob byte-for-byte, including the unchanged configuration. No signed URL or configuration value is recorded in the evidence.
+
+Post-deployment verify.cjs with UI_SITE and verify-session.cjs with SESSION_SITE both passed against hosted assets. API traffic was mocked, so these checks sent no real OTP or business writes. The real-browser hosted landing displayed secure sign-in without a seeded identity or role navigation. Earlier authenticated synthetic live lifecycle, denial, concurrency and SharePoint evidence remain the backend acceptance basis; no extra business transition was induced for deployment.
+
+Final isolated fixture remains assessment 8 CONFIRMED Revision 2 and plan 5 COMPLETED Revision 6, with empty lock and preserved history. Gate 1–2 records, existing permissions/connections, workflow architecture and Gate 2 notification reservation behavior remain as verified above. No connector failure was deliberately injected and independent mailbox delivery was not rechecked. This documentation follow-up changes no application asset or backend definition.
