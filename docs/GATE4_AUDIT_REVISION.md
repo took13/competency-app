@@ -1,6 +1,6 @@
 # Gate 4 — Audit / Revision
 
-1 November 2026, Asia/Bangkok. **Implementation candidate / offline tests PASS; deployment and live acceptance NOT YET PASS.**
+Updated 02/11/2026, 00:01:42 Asia/Bangkok. **Functional backend and controlled live UAT PASS; overall Gate 4 BLOCKED pending hosted UI release approval and verification.**
 
 ## Baseline evidence
 
@@ -26,7 +26,7 @@ The final candidate therefore uses **one separate append-only application event 
 
 ## Provisioned resource and required schema verification
 
-An empty list `Competency_Audit_Event` was created on the same site, without adding it to site navigation. Observed list GUID: `5fe74808-a5b7-4d05-9d6e-fa225bdfd562`. It is not yet an activated audit service.
+An empty list `Competency_Audit_Event` was created on the same site, without adding it to site navigation. Observed list GUID: `5fe74808-a5b7-4d05-9d6e-fa225bdfd562`. It now stores the verified synthetic lifecycle events described below.
 
 | Internal field | Required design |
 |---|---|
@@ -37,7 +37,7 @@ An empty list `Competency_Audit_Event` was created on the same site, without add
 
 All three fields were read back from their saved column settings: Title required/unique, ParentKey required, EventPayload required/Note/plain text/append changes disabled. Title and ParentKey indexes were independently created and read back on Indexed Columns (2 indexes). An initial JavaScript index-confirmation browser failure was resolved through explicit index creation; user assistance is no longer needed for that earlier confirmation. Evidence includes gate4-title-schema.png and the recorded schema inputs.
 
-**ACL prerequisite resolved by user-assisted confirmation and server readback.** The initially inherited Members = Edit / Visitors = Read were removed from this new list after breaking inheritance. Current permissions show only PI Resources Owners = Full Control. The existing SharePoint service identity was verified to have Full Control through Owners; no new identity or grant was introduced and no Gates 1–3 list permissions were changed. Native Audit list versioning is enabled with 50 versions retained. User assistance was needed because browser automation could not reliably confirm native JavaScript dialogs. Keep privileged-owner rights distinct from ordinary app RBAC; no immutable-store claim is made. No candidate flow has been imported at this checkpoint.
+**ACL prerequisite resolved by user-assisted confirmation and server readback.** The initially inherited Members = Edit / Visitors = Read were removed from this new list after breaking inheritance. Current permissions show only PI Resources Owners = Full Control. The existing SharePoint service identity was verified to have Full Control through Owners; no new identity or grant was introduced and no Gates 1–3 list permissions were changed. Native Audit list versioning is enabled with 50 versions retained. User assistance was needed because browser automation could not reliably confirm native JavaScript dialogs. Keep privileged-owner rights distinct from ordinary app RBAC; no immutable-store claim is made. Import and live results are recorded in the final acceptance section below.
 
 Publication: the user explicitly authorized the isolated Gate 4 branch after the initial automatic-review rejection. Commit f037a87999d2a25ea4b720da34fe01822b38648a was pushed and independently read back from GitHub. Main was not merged and hosting was not triggered by this branch push. Subsequent related safeguards stay on that same branch.
 
@@ -83,25 +83,32 @@ Verified fixture cases include two rounds of 12 self saves and 12 manager review
 
 Existing verify, UX, manager, development, assignment, dashboard, session and flow-change suites passed. Re-run relevant suites after final changes; record actual live results independently.
 
-## Deployment / live acceptance still required
+## Verified deployment and controlled live acceptance — 02/11/2026, 00:01:42 Asia/Bangkok
 
-1. Verify the provisioned schema, Title uniqueness, ParentKey index, versioning, ACLs and service-connection access.
-2. Candidate definitions and three private packages are already prepared. Package comparison verified identical original entry sets/manifests/maps and exactly one replaced definition.json per archive. Refresh candidates/packages if implementation changes; preserve Update/original flow IDs and connections. Exact fingerprint manifests are generated integrity checks, not independent approvals.
-3. Import incrementally, run Flow checker, export/read back complete deployed definitions and compare all executable properties.
-4. Use a new isolated synthetic Gate 4 fixture and the user-operated Employee/Manager sessions. Preserve Gate 1–3 records and original notification reservations. Record waiting-client HTTP status/body, actual business state, actor/time, before/after pairs, correlation, denied writes, concurrent outcomes and history read scopes.
-5. Validate notification reservations independently of mailbox delivery; do not equate Flow Succeeded, HTTP success, SENT or mailbox receipt. Gate 2 H remains configuration-only. No live Outlook failure injection has occurred.
-6. Publish the tested UI only after backend read/write contracts and live safeguards pass. Verify hosted asset hashes and actual deployment workflow, then rerun hosted regression with its transport mode clearly identified.
+Functional backend and controlled live UAT: **PASS**. Overall Gate 4: **BLOCKED pending hosted UI release approval and hosted verification**. User authorization currently covers the Gate 4 branch push, not main merge or hosting deployment. No PR targeting main was opened because the existing workflow also deploys PRs targeting main.
 
-Until those steps complete, **Gate 4 overall = BLOCKED / NOT LIVE-ACCEPTED**. No PASS is claimed for deployment, real concurrency, real negative UAT, mailbox delivery, failure injection, immutable retention or direct SharePoint isolation.
+All three final candidates are imported into the original Employee, Manager and Development flows, restored to On and independently read back. Flow checker reports zero errors and warnings for each. Fresh complete exported definitions match every executable property, trigger and connection; only clientLastModifiedTime and connectionKeySavedTimeKey differ, individually reviewed as metadata timestamps. Employee v2 and v3 archives are byte-identical; Manager/Development use v3 actual committed parent snapshots and server commit times. Private exports/packages remain outside the repository.
 
-## Live rollout checkpoint — 2026-11-01 19:19 Asia/Bangkok
+The isolated synthetic Gate 4 cycle completed the actual lifecycle through the local candidate UI and deployed Power Automate/SharePoint, not mocked transport:
 
-The user completed the SharePoint confirmation dialogs. Independent readback verified unique permissions on Competency_Audit_Event with only PI Resources Owners / Full Control. The service connection account remains an Owner. Required/unique/indexed Title, indexed ParentKey, plain-text EventPayload and native versioning retaining 50 versions are verified. Existing business-list schemas/ACLs were not changed. This is not immutable retention or proof that privileged owners cannot alter records.
+| Evidence | Verified result |
+|---|---|
+| Assessment | 12 initial self saves, submit, one review, Return with reason, first item revised 2 to 3, resubmit, fresh review 12/12, Confirm; final CONFIRMED, Revision 2 |
+| Assessment audit | 60 central rows / 30 pairs / 0 pending; prior level/evidence retained; actors and ordered server times/correlation IDs verified |
+| Development | Created 9 actions, planned all, Start, concurrent Return, edit/restart, complete 9/9, Reopen first action, recomplete; final COMPLETED, Revision 3 |
+| Reopen | Completed parent to IN_PROGRESS; first action to PLANNED; previous action completion retained and previous parent completion recorded in audit; other eight actions exactly unchanged |
+| Plan audit | 50 central rows / 25 pairs / 0 pending; native final parent COMPLETED, Revision 3, empty WorkflowLock |
+| Employee RBAC | Three actual HTTP 403 denials for assessment Return, plan Return and action Reopen; complete before/after readback hashes unchanged |
+| Manager negative UAT | Eight actual HTTP 400/409 denials for blank reasons, protected states, stale revision payloads and duplicate completion; complete readback hashes unchanged |
+| Real concurrency | Two simultaneous plan Return requests: one 200 and one 409; one revision increment and one additional audit pair; action hash unchanged |
+| Read scopes / UI | Employee and Manager final history and action data exactly match for the authorized subject; Employee UI read-only; first self save, Return and Confirm pairs independently read in native SharePoint details |
+| Gate 3 regression | All recorded assessment/plan fields in the final API handover match exactly, including history, action titles and completion timestamps; no new central audit rows on old records |
+| Notification regression | All 12 visible cells for each of the 18 Gate 2/3 baseline notification rows match the final Gate 3 handover exactly |
 
-All three final candidates are imported as updates to the original flows, restored to On after import, and independently read back as enabled. Each Flow checker shows 0 errors and 0 warnings. Full fresh exported definitions compare exactly to v3 candidates except clientLastModifiedTime and connectionKeySavedTimeKey, the two individually reviewed metadata timestamps. Triggers, executable actions and connection references match. Employee v2 and v3 packages are byte-identical; Manager/Development use v3 actual committed parent readbacks and server timestamps.
+Local guard fixtures blocked 12 old/other-target mutation cases before transport. Sequential live helpers were fixture-checked to send no writes for Employee and stop after the first write if an audit pair was missing. Live batch helpers sent one request at a time, verified the resulting pair and stopped on ambiguity; no retries or lock clearing were performed. Existing duplicate create/open UI recovery opened the same plan without adding duplicate creation audit.
 
-A real waiting HTTP Employee read with an intentionally invalid synthetic session returned HTTP 401 / success false / Invalid session. This establishes only invalid-session denial, not authenticated role/scope or concurrent-write acceptance.
+One Manager post-Start UI readback required refresh. An independent Employee read proved the Start committed with a complete audit pair; refresh restored Manager controls without resubmitting Start. The correlated producer run shows success and a 15.6-second session lookup. The existing UI request timeout is 25 seconds. These facts do not establish the exact cause; no timeout configuration change was made.
 
-Created isolated synthetic cycle UAT_GATE4_20261101_01 through SharePoint and read the saved row back. Local live-UAT UI restricts writes to the new cycle/employee/assessment/plan; stub-transport verification blocked 12 historical/other-target write cases. No Gate 4 business lifecycle writes or live audit event pairs have been accepted yet. Fresh user-operated Employee and Manager sign-ins are requested because prior sessions expired.
+Notification action subgraphs, recipients, event keys, trigger definitions and connections remain structurally unchanged. Gate 4 notification reservations observed in SharePoint are send-status evidence only. No mailbox failure proof or live Outlook failure injection is claimed. Business/audit failure handling and 500-row read bounds are fixture evidence, not live fault injection. Native Owners retain privileged edit/delete rights; no WORM/immutable retention or actual direct non-owner SharePoint access-denial proof is claimed. Review Revision is a review round and does not guarantee rejection of every sequential stale-browser save in the same round.
 
-The branch is published through 96845c3291d8a0e6c5248f36e06dd6b7cd7e5c82 under the user's branch-only authorization. Main remains Gate 3; no merge or hosted UI deployment was performed. Prior ACL/import blockers are resolved. Overall acceptance is still pending authenticated live lifecycle, negative/concurrency checks and independent audit/business readback. No new mailbox delivery or Outlook failure-injection proof is claimed.
+Remaining release steps: approve a concrete Gate 4 branch merge into main, let the existing Azure workflow deploy, verify hosted asset hashes/workflow result, then run hosted/session regression with transport mode recorded. Do not infer production UI deployment from branch push or backend import. Main remains the Gate 3 merge at this checkpoint.

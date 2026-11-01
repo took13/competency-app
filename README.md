@@ -1,8 +1,8 @@
 # Competency Hub · UI v2
 
-## Gate 4 — backend installed; live acceptance pending
+## Gate 4 — controlled live UAT passed; hosted release pending
 
-Audit/revision changes are published on codex/gate4-audit-revision. The Audit Event list has verified unique Owners-only permissions, indexes and versioning (50 versions). Employee, Manager and Development v3 candidates are imported into the original flows, enabled and checked with zero errors/warnings. Complete post-import exports match all executable properties and connections; only two named metadata timestamps differ. Offline lifecycle, role/scope, concurrency, failure and browser regressions pass. Authenticated live lifecycle/negative/concurrency acceptance and hosted UI deployment remain pending; Gate 4 overall is not accepted. See docs/GATE4_AUDIT_REVISION.md. Use tools/build-gate4-event-store.cjs for private candidates; the cumulative instrumentation helper is not a deployment path.
+Audit/revision changes are published on codex/gate4-audit-revision. The Audit Event list has verified unique Owners-only permissions, indexes and versioning (50 versions). Employee, Manager and Development v3 candidates are imported into the original flows, enabled and checked with zero errors/warnings. Complete post-import exports match all executable properties and connections; only two named metadata timestamps differ. Offline lifecycle, role/scope, concurrency, failure and browser regressions pass. Controlled actual lifecycle, 11 HTTP negative cases, concurrent Return and independent audit readback pass: 110 rows / 55 pairs / 0 pending. Recorded Gate 3 fields and all 18 Gate 2/3 notification rows match handover. Hosted UI merge/deployment and hosted verification remain pending; Gate 4 overall is not accepted. One Manager post-Start readback required refresh; the cause is unproven. See docs/GATE4_AUDIT_REVISION.md. Use tools/build-gate4-event-store.cjs for private candidates; the cumulative instrumentation helper is not a deployment path.
 
 ## Gate 3 continuation — core live acceptance verified
 
