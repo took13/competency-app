@@ -93,3 +93,15 @@ Existing verify, UX, manager, development, assignment, dashboard, session and fl
 6. Publish the tested UI only after backend read/write contracts and live safeguards pass. Verify hosted asset hashes and actual deployment workflow, then rerun hosted regression with its transport mode clearly identified.
 
 Until those steps complete, **Gate 4 overall = BLOCKED / NOT LIVE-ACCEPTED**. No PASS is claimed for deployment, real concurrency, real negative UAT, mailbox delivery, failure injection, immutable retention or direct SharePoint isolation.
+
+## Live rollout checkpoint — 2026-11-01 19:19 Asia/Bangkok
+
+The user completed the SharePoint confirmation dialogs. Independent readback verified unique permissions on Competency_Audit_Event with only PI Resources Owners / Full Control. The service connection account remains an Owner. Required/unique/indexed Title, indexed ParentKey, plain-text EventPayload and native versioning retaining 50 versions are verified. Existing business-list schemas/ACLs were not changed. This is not immutable retention or proof that privileged owners cannot alter records.
+
+All three final candidates are imported as updates to the original flows, restored to On after import, and independently read back as enabled. Each Flow checker shows 0 errors and 0 warnings. Full fresh exported definitions compare exactly to v3 candidates except clientLastModifiedTime and connectionKeySavedTimeKey, the two individually reviewed metadata timestamps. Triggers, executable actions and connection references match. Employee v2 and v3 packages are byte-identical; Manager/Development use v3 actual committed parent readbacks and server timestamps.
+
+A real waiting HTTP Employee read with an intentionally invalid synthetic session returned HTTP 401 / success false / Invalid session. This establishes only invalid-session denial, not authenticated role/scope or concurrent-write acceptance.
+
+Created isolated synthetic cycle UAT_GATE4_20261101_01 through SharePoint and read the saved row back. Local live-UAT UI restricts writes to the new cycle/employee/assessment/plan; stub-transport verification blocked 12 historical/other-target write cases. No Gate 4 business lifecycle writes or live audit event pairs have been accepted yet. Fresh user-operated Employee and Manager sign-ins are requested because prior sessions expired.
+
+The branch is published through 96845c3291d8a0e6c5248f36e06dd6b7cd7e5c82 under the user's branch-only authorization. Main remains Gate 3; no merge or hosted UI deployment was performed. Prior ACL/import blockers are resolved. Overall acceptance is still pending authenticated live lifecycle, negative/concurrency checks and independent audit/business readback. No new mailbox delivery or Outlook failure-injection proof is claimed.

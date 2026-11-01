@@ -1,8 +1,8 @@
 # Competency Hub · UI v2
 
-## Gate 4 candidate — live acceptance blocked on audit-store ACLs
+## Gate 4 — backend installed; live acceptance pending
 
-Audit/revision candidates and the read-only history UI are implemented on the Gate 4 branch. Fresh Employee/Manager/Development exports match deployed Gate 3. Offline generated-graph, two-round 12-item lifecycle, role/scope, concurrency, failure and browser regression checks pass. A measured cumulative-history capacity limit justified one separate Audit Event list; its columns/indexes are provisioned, but native access restriction is not yet verified. No Gate 4 flow or hosted UI deployment is claimed. See `docs/GATE4_AUDIT_REVISION.md` for evidence, current blocker and exact rollout steps. Use `tools/build-gate4-event-store.cjs` for private candidates; the cumulative instrumentation helper is not a deployment path.
+Audit/revision changes are published on codex/gate4-audit-revision. The Audit Event list has verified unique Owners-only permissions, indexes and versioning (50 versions). Employee, Manager and Development v3 candidates are imported into the original flows, enabled and checked with zero errors/warnings. Complete post-import exports match all executable properties and connections; only two named metadata timestamps differ. Offline lifecycle, role/scope, concurrency, failure and browser regressions pass. Authenticated live lifecycle/negative/concurrency acceptance and hosted UI deployment remain pending; Gate 4 overall is not accepted. See docs/GATE4_AUDIT_REVISION.md. Use tools/build-gate4-event-store.cjs for private candidates; the cumulative instrumentation helper is not a deployment path.
 
 ## Gate 3 continuation — core live acceptance verified
 
