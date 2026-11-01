@@ -473,11 +473,12 @@ document.addEventListener('click',e=>{if(e.target.closest('#demoAssignJunior')&&
 function gate3Revision(r){if(r?.gate3Ready!==true)return {};const n=Number(r.revision);if(!Number.isInteger(n)||n<1)throw new Error('Invalid workflow revision');return {expectedRevision:n};}
 function gate3Context(r){
  if(r?.gate3Ready!==true)return '';
- const events=[...(Array.isArray(r.transitionHistory)?r.transitionHistory:[]),...(r.gate4Ready===true&&Array.isArray(r.auditHistory)?r.auditHistory:[])].filter(e=>e&&typeof e==='object');if(!events.length)return '';
+ const all=[...(Array.isArray(r.transitionHistory)?r.transitionHistory:[]).filter(e=>e&&typeof e==='object').map(e=>({...e,_auditSource:false})),...(r.gate4Ready===true&&Array.isArray(r.auditHistory)?r.auditHistory:[]).filter(e=>e&&typeof e==='object').map(e=>({...e,_auditSource:true}))];
+ const events=[...new Map(all.map((e,i)=>[e.eventId?e.eventId+'|'+(e.phase||'legacy'):'legacy-'+i,e])).values()];if(!events.length)return '';
  events.sort((a,b)=>String(a.at||'').localeCompare(String(b.at||'')));
  const last=events.filter(e=>e.eventType==='ASSESSMENT_RETURNED').at(-1);
  return (upper(r.status)==='RETURNED'&&last?'<div class="preview-note" role="status"><b>Returned for changes</b><p>'+esc(last.reason)+'</p></div>':'')+'<details class="preview-note"><summary>Revision history</summary>'+(r.auditHistoryMayBeTruncated?'<p>Showing recent audit events. Contact support for the complete archive.</p>':'')+events.map(e=>{
-  const committed=e.phase==='COMMITTED',pending=e.phase==='REQUESTED'&&!events.some(x=>x.eventId===e.eventId&&x.phase==='COMMITTED');
+  const committed=e.phase==='COMMITTED',pending=e.phase==='REQUESTED'&&!events.some(x=>x.eventId===e.eventId&&x.phase==='COMMITTED'&&(!e._auditSource||x._auditSource));
   const detail=['before','proposed','after','beforeParent','afterParent','items','action','actions'].filter(k=>e[k]!==undefined).map(k=>'<details><summary>'+esc(({before:'Before',proposed:'Requested changes',after:'After',beforeParent:'Previous workflow',afterParent:'Resulting workflow',items:'Assessment snapshot',action:'Action snapshot',actions:'Plan actions'})[k])+'</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">'+esc(JSON.stringify(e[k],null,2))+'</pre></details>').join('');
   return '<article><p><b>'+esc(e.eventType)+'</b> · '+esc(e.at)+' · '+esc(e.actor)+(committed?' · Recorded':pending?' · Pending reconciliation':e.phase==='REQUESTED'?' · Request recorded':' · Legacy transition')+(e.reason?'<br>Reason: '+esc(e.reason):'')+(e.revision!==undefined?'<br>Review revision: '+esc(e.revision):'')+'</p>'+detail+'<details><summary>Reference</summary><p>'+esc(e.correlationId||e.runId||'Unavailable')+'</p></details></article>';
  }).join('')+'</details>';

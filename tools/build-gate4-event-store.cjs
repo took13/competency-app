@@ -39,6 +39,22 @@ function build(source,kind,auditListId){
   final.G4_Plan_Create_Commit=append('G4_Plan_Create_Done','COMMITTED',after('Update_Development_Plan_Draft'),scope);
   find('Response_Development_Plan_Created').runAfter=after('G4_Plan_Create_Commit');
  }
+ // Preserve Gate 3 metadata and also copy Return/Reopen events into the
+ // restricted event store. Do not make the mutable parent the only audit source.
+ const transitions=kind==='Manager'?[['G3_Return_Commit','G3_Return_Event','G3_Release_G3_Return_Response']]:kind==='Development'?[
+  ['G3_Plan_Return_Commit','G3_Plan_Return_Event','G3_Release_G3_Plan_Return_Response'],
+  ['G3_Reopen_Intent','G3_Reopen_Event','G3_Release_G3_Reopen_Response','G3_Reopen_Plan_Commit','G3_Reopen_Done']
+ ]:[];
+ for(const[write,eventName,releaseName,lastWrite=write,doneName=eventName]of transitions){
+  const location=locate(root,write),prefix='G4_Audit_'+write;
+  const event={...clone(find(eventName).inputs),phase:'REQUESTED'};
+  location.parent[prefix+'_Intent']={type:'Compose',inputs:event,runAfter:clone(location.node.runAfter||{})};
+  location.parent[prefix+'_PersistIntent']=append(prefix+'_Intent','REQUESTED',after(prefix+'_Intent'));
+  location.node.runAfter=after(prefix+'_PersistIntent');
+  const release=locate(root,releaseName);
+  release.parent[prefix+'_Commit']=append(doneName,'COMMITTED',after(lastWrite));
+  release.node.runAfter=after(prefix+'_Commit');
+ }
  // Read only after the original session/profile/owner/reviewer guards. No new
  // public audit endpoint, client-provided scope or generic list reader exists.
  const readResponse=kind==='Employee'?'Response_8':kind==='Manager'?'Response_Review_Assessment':'Response_Development_Plan';

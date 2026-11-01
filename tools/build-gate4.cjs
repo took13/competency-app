@@ -39,8 +39,8 @@ function build(source, kind) {
   const snapshot = (expr,type) => Object.fromEntries(fields[type].map(f=>[f,`@${expr}?['${f}']`]));
   const history = expr => `json(if(empty(${expr}?['TransitionHistory']),'[]',${expr}?['TransitionHistory']))`;
   const readParent = dep => ({type:'OpenApiConnection',inputs:{host:{...clone(releaseSample.inputs.host),operationId:'HttpRequest'},authentication:releaseSample.inputs.authentication,retryPolicy:{type:'none'},parameters:{dataset:parentParams.dataset,'parameters/method':'GET','parameters/uri':`@concat('_api/web/lists(guid''${parentParams.table}'')/items(',string(${current}?['ID']),')')`,'parameters/headers':{Accept:'application/json;odata=verbose'}}},runAfter:dep});
-  // Revision denotes review round. History equality additionally detects saves
-  // which finish between the authorized read and the existing exact-ETag claim.
+  // Revision denotes review round. History equality additionally detects legacy
+  // transitions between the authorized read and the existing exact-ETag claim.
   const guard=find('G3_Lock_Available');
   guard.expression=`@and(${guard.expression.slice(1)},equals(coalesce(body('G3_Read_Lock')?['d']?['TransitionHistory'],''),coalesce(${current}?['TransitionHistory'],'')))`;
   for (const [write,beforeName,type,eventType,response] of specs[kind]) {

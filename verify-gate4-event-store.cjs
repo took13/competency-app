@@ -27,10 +27,11 @@ if(require.main===module)(async()=>{
   if(round===1)status(await request(f,'Manager','return_assessment',{assessmentKey:'A',reason:'Synthetic revision cycle',expectedRevision:1}),200);
  }
  status(await request(f,'Manager','confirm_assessment',{assessmentKey:'A',expectedRevision:2}),200);
- assert.equal(a.Status.Value,'CONFIRMED');assert.equal(a.WorkflowLock,'');assert(a.TransitionHistory.length<50000);assert.equal(events(f).length,102);
+ assert.equal(a.Status.Value,'CONFIRMED');assert.equal(a.WorkflowLock,'');assert(a.TransitionHistory.length<50000);assert.equal(events(f).length,104);
  const first=events(f)[0],done=events(f)[1];assert.equal(first.before.SelfLevel,3);assert.equal(first.actor,'employee@example.test');assert.equal(done.eventId,first.eventId);assert.equal(done.phase,'COMMITTED');assert(!JSON.stringify(events(f)).includes('sessionToken'));
- const read=status(await request(f,'Employee','get_my_assessment',{assessmentKey:'A'},'employee'),200);assert.equal(read.assessment.auditHistory.length,102);assert.equal(read.assessment.gate4Ready,true);assert.equal(read.assessment.auditHistoryMayBeTruncated,false);
- console.log('PASS two 12-item rounds: 102 append-only audit events, Return/edit/resubmit/fresh-review/confirm, bounded legacy transition history');
+ const read=status(await request(f,'Employee','get_my_assessment',{assessmentKey:'A'},'employee'),200);assert.equal(read.assessment.auditHistory.length,104);assert.equal(read.assessment.gate4Ready,true);assert.equal(read.assessment.auditHistoryMayBeTruncated,false);
+ const returned=events(f).filter(e=>e.eventType==='ASSESSMENT_RETURNED');assert.equal(returned.length,2);assert.equal(returned[0].phase,'REQUESTED');assert.equal(returned[1].phase,'COMMITTED');assert.equal(returned[0].eventId,returned[1].eventId);assert.equal(returned[1].items.length,12);
+ console.log('PASS two 12-item rounds: 104 append-only audit events including protected Return, edit/resubmit/fresh-review/confirm, bounded legacy history');
  f=fixture();const before=JSON.stringify(f.tables);for(const token of ['employee','other'])status(await request(f,'Manager','save_manager_review',{assessmentKey:'A',itemKey:'I1',validatedLevel:4},token),403);assert.equal(JSON.stringify(f.tables),before);
  status(await request(f,'Manager','get_review_assessment',{assessmentKey:'A'},'other'),403);assert.equal(f.tables[auditId].length,0);
  const pair=await Promise.all([request(f,'Manager','save_manager_review',{assessmentKey:'A',itemKey:'I1',validatedLevel:4,expectedRevision:1}),request(f,'Manager','save_manager_review',{assessmentKey:'A',itemKey:'I1',validatedLevel:5,expectedRevision:1})]);assert.deepEqual(pair.map(r=>r.response?.statusCode).sort(),[200,409]);assert.equal(events(f).length,2);
@@ -38,8 +39,9 @@ if(require.main===module)(async()=>{
  f=fixture();const p=f.tables[ids.plan][0];status(await request(f,'Development','reopen_development_action',{planKey:'P',actionKey:'D1',reason:'Synthetic reopen',expectedRevision:1}),200);status(await request(f,'Development','return_development_plan',{planKey:'P',reason:'Synthetic return',expectedRevision:2}),200);
  status(await request(f,'Development','save_development_action',{planKey:'P',actionKey:'D1',actionType:'SELF_LEARNING',developmentAction:'Synthetic correction',successMeasure:'Synthetic result',ownerEmail:'employee@example.test',targetDate:'2026-12-01',expectedRevision:3}),200);
  status(await request(f,'Development','start_development_plan',{planKey:'P',expectedRevision:3}),200);status(await request(f,'Development','complete_development_action',{planKey:'P',actionKey:'D1',expectedRevision:3}),200);
- assert.equal(p.Status.Value,'COMPLETED');assert.equal(events(f).length,6);assert.equal(events(f).at(-1).afterParent.Status,'COMPLETED');
- const planRead=status(await request(f,'Development','get_development_plan',{planKey:'P'},'employee'),200);assert.equal(planRead.plan.auditHistory.length,6);
+ assert.equal(p.Status.Value,'COMPLETED');assert.equal(events(f).length,10);assert.equal(events(f).at(-1).afterParent.Status,'COMPLETED');
+ const reopen=events(f).filter(e=>e.eventId.endsWith('|G3_Reopen'));assert.equal(reopen.length,2);assert.equal(reopen[0].phase,'REQUESTED');assert.equal(reopen[1].phase,'COMMITTED');assert.equal(reopen[1].after.Status.Value,'PLANNED');
+ const planRead=status(await request(f,'Development','get_development_plan',{planKey:'P'},'employee'),200);assert.equal(planRead.plan.auditHistory.length,10);
  console.log('PASS development Return/Reopen, edit/start/recomplete and self-only read');
  f=fixture();f.tables[ids.plan]=[];f.tables[ids.action]=[];f.tables[ids.assessment][0].Status={Value:'CONFIRMED'};status(await request(f,'Development','create_development_plan',{assessmentKey:'A'}),201);assert.equal(events(f).length,2);status(await request(f,'Development','create_development_plan',{assessmentKey:'A'}),409);assert.equal(events(f).length,2);
  console.log('PASS plan creation audit; existing-plan recovery has no duplicate audit');
