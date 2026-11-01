@@ -78,7 +78,7 @@ loadLocalConfig();
 
 const fixture=JSON.parse($('fixture').textContent),state={demo:false,verified:false,page:'login',profile:{},assignments:[],assessment:null,drafts:new Map(),saving:new Set(),loading:false,submitting:false,requestId:null,generation:0};
 const editable=()=>['ASSIGNED','IN_PROGRESS'].includes(upper(state.assessment?.status))||(state.assessment?.gate3Ready===true&&upper(state.assessment.status)==='RETURNED'),dirty=()=>state.drafts.size>0,role=()=>upper(state.profile?.appRole),isManager=()=>['MANAGER','ADMIN'].includes(role()),done=()=>state.assessment?.items.filter(x=>upper(x.itemStatus)==='COMPLETED').length||0;
-const title=a=>txt(a?.cycleName)|| (txt(a?.cycleKey)==='ETM_UI_DEMO_2026'?'ETM Technical Competency 2026':'Competency assessment');
+const title=a=>txt(a?.cycleName)|| (txt(a?.cycleKey)==='ETM_UI_DEMO_2026'?'ETM Technical Competency 2026':txt(a?.cycleKey)||'Competency assessment');
 let toastTimer;
 function toast(message,error=false){clearTimeout(toastTimer);$('toast').textContent=message;$('toast').classList.toggle('error',error);$('toast').hidden=false;toastTimer=setTimeout(()=>$('toast').hidden=true,error?8000:4200)}
 const SESSION_IDLE_MS=30*60*1000;
@@ -244,7 +244,7 @@ function managerPage(){
   const selected=managerSelected;
   const submitted=queue.filter(a=>['SUBMITTED','UNDER_REVIEW'].includes(upper(a.status))).length;
   const confirmed=state.demo?queue.filter(a=>upper(a.status)==='CONFIRMED').length:managerConfirmed.size;
-  $('content').innerHTML=workspaceHeading('MANAGER WORKSPACE','Align capability. Unlock growth.','Review one person at a time, with evidence beside every decision.')+demoBanner()+assignmentSection()+(!state.demo?contractNotice('managerQueue','Manager'):'')+(managerQueueError?'<div class="preview-note" role="alert">Team refresh failed. Displayed data may be stale. Check your connection and select Refresh team; sign in again if your session ended.</div>':'')+`<div class="metrics"><section class="card"><strong>${queue.length}</strong><span>Assessments ${state.demo?'in sample':'loaded'}</span></section><section class="card"><strong>${submitted}</strong><span>${statusBadge("WAITING_REVIEW","Awaiting review")}</span></section><section class="card"><strong>${confirmed}</strong><span>${statusBadge("CONFIRMED",state.demo?"Confirmed":"Confirmed this session")}</span></section></div><div class="section-head"><h2>Team review queue</h2>${!state.demo?`<button id="loadTeam" ${!contractReady('managerQueue')?'disabled':''}>Refresh team</button>`:''}</div><div class="team-queue">${queue.map((a,n)=>`<button class="card queue-row" data-tone="${statusTone(a.status)}" data-review="${n}"><span><b>${esc(a.employeeName||a.employeeEmail||'Team member')}</b><small>${esc(a.cycleName||a.cycleKey)}</small></span>${statusBadge(a.status)}<span>Review →</span></button>`).join('')||'<section class="card empty"><p>No team assessments loaded.</p></section>'}</div>${selected?reviewPanel(selected):''}`;
+  $('content').innerHTML=workspaceHeading('MANAGER WORKSPACE','Align capability. Unlock growth.','Review one person at a time, with evidence beside every decision.')+demoBanner()+assignmentSection()+(!state.demo?contractNotice('managerQueue','Manager'):'')+(managerQueueError?'<div class="preview-note" role="alert">Team refresh failed. Displayed data may be stale. Check your connection and select Refresh team; sign in again if your session ended.</div>':'')+`<div class="metrics"><section class="card"><strong>${queue.length}</strong><span>Assessments ${state.demo?'in sample':'loaded'}</span></section><section class="card"><strong>${submitted}</strong><span>${statusBadge("WAITING_REVIEW","Awaiting review")}</span></section><section class="card"><strong>${confirmed}</strong><span>${statusBadge("CONFIRMED",state.demo?"Confirmed":"Confirmed this session")}</span></section></div><div class="section-head"><h2>Team review queue</h2>${!state.demo?`<button id="loadTeam" ${!contractReady('managerQueue')?'disabled':''}>Refresh team</button>`:''}</div><div class="team-queue">${queue.map((a,n)=>`<button class="card queue-row" data-tone="${statusTone(a.status)}" data-review="${n}"><span><b>${esc(a.employeeName||a.employeeEmail||'Team member')}</b><small>${esc(a.cycleName||a.cycleKey)}</small></span>${statusBadge(a.status)}<span>Review →</span></button>`).join('')||'<section class="card empty"><p>No team assessments loaded.</p></section>'}</div>${!state.demo&&contractReady('managerAssessment')?'<section class="card"><h2>Open an existing assessment</h2><p>Use its assessment key to return to a confirmed development plan. Your access is checked by the server.</p><form id="openExistingReview"><label for="existingReviewKey">Assessment key</label><input id="existingReviewKey" required maxlength="500"><button type="submit" '+(workspaceBusy?'disabled':'')+'>Open existing assessment</button></form></section>':''}${selected?reviewPanel(selected):''}`;
 }
 function reviewPanel(a){
   const confirmed=upper(a.status)==='CONFIRMED', eligible=state.demo?['SUBMITTED','UNDER_REVIEW'].includes(upper(a.status)):upper(a.status)==='SUBMITTED';
@@ -363,7 +363,7 @@ function validateDevelopmentWrite(d,r,kind,x){
  else if(txt(d.actionKey)!==txt(x.actionKey)||(kind==='save'?upper(d.status)!=='PLANNED':upper(d.actionStatus)!=='COMPLETED'))throw new Error('Invalid action response');
 }
 function validateDevelopmentCounts(d,r,kind){
- const complete=kind==='complete',count=r.actions.filter(a=>upper(a.status)===(complete?'COMPLETED':'PLANNED')).length;
+ const complete=kind==='complete',count=r.actions.filter(a=>complete?upper(a.status)==='COMPLETED':['actionType','developmentAction','successMeasure','ownerEmail','targetDate'].every(k=>!!txt(a[k]))).length;
  if(managerNumber(complete?d.completedActionCount:d.plannedActionCount)!==count||(complete?r.planStatus!==upper(d.planStatus):kind==='start'&&r.planStatus!=='IN_PROGRESS'))throw new Error('Development state changed');
 }
 async function transitionDevelopment(operation,n){
@@ -414,6 +414,16 @@ document.addEventListener('submit',async e=>{
  if(!['developmentForm','assignmentForm'].includes(e.target.id))return;e.preventDefault();if(workspaceBusy)return;
  if(e.target.id==='assignmentForm'){toast('Use Manager Workspace → Assign Assessment. Preview is required.',true);return;}
  await saveDevelopmentForm(e);
+});
+
+document.addEventListener('submit',async e=>{
+ if(e.target.id!=='openExistingReview')return;e.preventDefault();
+ if(state.demo||!isManager()||state.page!=='manager'||workspaceBusy||!contractReady('managerAssessment'))return;
+ const key=$('existingReviewKey').value.trim();if(!key||key.length>500)return;
+ workspaceBusy=true;if(e.submitter)e.submitter.disabled=true;setManagerBusy(true);
+ try{const review=await fetchReview(key);if(state.page==='manager'&&isManager()){managerSelected=review;managerPage();$('reviewPanel')?.scrollIntoView({behavior:'smooth'});}}
+ catch(err){managerSelected=null;managerFailure(err);if(state.verified&&state.page==='manager')managerPage();}
+ finally{workspaceBusy=false;setManagerBusy(false);const button=document.querySelector('#openExistingReview button');if(button)button.disabled=false;}
 });
 
 if(endpointsReady()&&sessionValid()){

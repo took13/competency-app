@@ -116,3 +116,11 @@ No backend contracts or GitHub Actions changed. No real API data is modified by 
 ## Manager development routing
 
 Manage Development Plan opens managerDevelopment independently of self-only My Development. Selected assessment/employee/profile and known planKey are retained; mismatched response identity fails closed; sign-out clears both records. The previous routing-only release kept Development disabled pending evidence; the six verified mappings above supersede that limitation.
+
+## Gate 3 continuation — 1 November 2026
+
+The historical start/readback description above predates preserved completed actions. `plannedActionCount` in save/start responses counts actions with all five nonempty planning fields, **including COMPLETED actions**; it is not a count of PLANNED status alone. The exported backend filters and an actual HTTP 200 save response confirm this. UI readback now checks the evidenced content-ready count; completion counts remain COMPLETED-status counts. A returned DRAFT plan may retain completed actions, and ordinary save cannot edit them. Generated-graph browser tests cover save and restart with mixed PLANNED/COMPLETED actions, including the failure reproduced before the correction.
+
+Connected Manager Workspace provides **Open an existing assessment** using the original assessment key. It calls the existing `get_review_assessment` contract, checks response identity and relies on unchanged server reviewer/ADMIN authorization. A confirmed result exposes the existing Manage development plan route; Create / open resumes the plan only on the previously evidenced duplicate response. This makes a confirmed plan reachable after page reload without changing queue scope, adding an API, granting rights, persisting an employee record locally or interpreting a missing record as creation permission. The form is absent in Demo/Employee views. Denied reads clear the selected review; session guards and sign-out behavior remain in force.
+
+Return/Reopen payloads, exact state boundaries, history and recovery safeguards are documented in GATE3_RETURN_REOPEN.md. Live acceptance modifies only the explicitly isolated synthetic Gate 3 cycle; earlier generic statements about no live mutations describe the original mocked checks, not this later UAT continuation.

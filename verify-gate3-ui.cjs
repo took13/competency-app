@@ -19,9 +19,22 @@ try{
  await page.click('#submit');await page.click('#doSubmit');await page.waitForFunction(()=>!state.submitting);assert.equal(f.tables[ids.assessment][0].Status.Value,'SUBMITTED');
  await login('MANAGER');await page.click('[data-page=manager]');await page.click('[data-review="0"]');await page.waitForFunction(()=>!workspaceBusy);assert(await page.locator('#confirmReview').isDisabled());assert.equal(await page.evaluate(()=>managerSelected.items[0].previousManagerLevel),3);
  for(let n=0;n<2;n++){await page.evaluate(n=>saveManager(n,false),n);}assert(!(await page.locator('#confirmReview').isDisabled()));await page.click('#confirmReview');await page.click('#doConfirmManager');await page.waitForFunction(()=>!workspaceBusy);assert.equal(f.tables[ids.assessment][0].Status.Value,'CONFIRMED');
+ await page.reload();await login('MANAGER');await page.click('[data-page=manager]');await page.waitForFunction(()=>!workspaceBusy);
+ const previousReviewer=f.tables[ids.assessment][0].ReviewerEmail;f.tables[ids.assessment][0].ReviewerEmail='other@example.test';
+ await page.fill('#existingReviewKey','A');await page.press('#existingReviewKey','Enter');await page.waitForFunction(()=>!workspaceBusy);
+ assert.match(await page.locator('#toast').innerText(),/access denied/i);assert.equal(await page.locator('#manageDevelopment').count(),0);
+ f.tables[ids.assessment][0].ReviewerEmail=previousReviewer;
+ await page.fill('#existingReviewKey','A');await page.click('#openExistingReview button');await page.waitForFunction(()=>!workspaceBusy);
+ assert.equal(await page.locator('#manageDevelopment').count(),1,'authorized confirmed plan remains reachable after a fresh page load');
  await page.click('#manageDevelopment');await page.waitForFunction(()=>!workspaceBusy);await page.evaluate(async()=>{developmentSubject.planKey='P';await readDevelopment(developmentSubject);developmentPage();});
  assert.equal(await page.locator('[data-gate3-reopen]').count(),2);await page.fill('#gate3DevelopmentReason','Recheck action evidence');await page.click('[data-gate3-reopen="0"]');await page.waitForFunction(()=>!workspaceBusy);assert.equal(f.tables[ids.plan][0].Status.Value,'IN_PROGRESS');assert.equal(f.tables[ids.action][0].Status.Value,'PLANNED');
  await page.fill('#gate3DevelopmentReason','Correct plan');await page.click('#gate3ReturnPlan');await page.waitForFunction(()=>!workspaceBusy);assert.equal(f.tables[ids.plan][0].Status.Value,'DRAFT');assert.equal(await page.locator('[data-edit-action]').count(),1);assert.equal(await page.locator('#startDevelopment').isEnabled(),true);
+ await page.click('[data-edit-action]');await page.fill('#actionTitle','Corrected after return with another completed action');await page.click('#developmentForm button');await page.waitForFunction(()=>!workspaceBusy);
+ assert.equal(await page.evaluate(()=>developmentRecord().loadError),false,'saving a returned plan with a preserved completed action must accept the evidenced content-ready count');
+ assert.match(await page.locator('#toast').innerText(),/Development action planned/);
+ await page.click('#startDevelopment');await page.waitForFunction(()=>!workspaceBusy);
+ assert.equal(await page.evaluate(()=>developmentRecord().loadError),false,'restarting with a preserved completed action must accept the evidenced content-ready count');
+ assert.equal(f.tables[ids.plan][0].Status.Value,'IN_PROGRESS');
  for(const width of [320,390,768,1440]){await page.setViewportSize({width,height:900});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'overflow '+width);}
  await login('EMPLOYEE');await page.evaluate(async()=>{state.page='development';connectedDevelopment={assessment:{assessmentKey:'A',employeeEmail:'employee@example.test'},planKey:'P'};await readDevelopment(connectedDevelopment);developmentPage();});assert.equal(await page.locator('[data-gate3-reopen],#gate3ReturnPlan,[data-edit-action]').count(),0);
  assert.deepEqual(errors,[]);console.log('PASS Gate 3 browser/fixture integration: Return reason and escaping, own edit/resubmit, fresh review/confirm, exact revision payloads, plan Return/Reopen, completed-action protection, employee read-only, responsive widths');

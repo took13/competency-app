@@ -1,6 +1,8 @@
 # Gate 3 — Return / Reopen: inspection and first safeguard increment
 
-31 October 2026, Asia/Bangkok. **IN PROGRESS — implementation prepared and offline-tested; NOT LIVE-UAT PASS.**
+1 November 2026, Asia/Bangkok. **Core live lifecycle/safeguard acceptance PASS. All three post-import definitions compared. Ready for code review; hosted frontend unchanged.**
+
+The current acceptance table and latest continuation below supersede dated preparation/import checkpoints. Raw exported packages stay private. No merge or hosting deployment is implied by this report.
 
 The original inspection below is retained as dated findings. The continuation described at the end supersedes its export blocker and proposed-contract status.
 
@@ -58,22 +60,25 @@ All existing suites passed against mocked APIs: verify.cjs, verify-ux.cjs, verif
 
 New verify-flow-change.cjs passed mutation tests for widened authorization, changed trigger, replaced connection, deleted notification group, client-controlled recipient, changed retry/claim dependency, changed HTTP response, exact change fingerprints and safe output. Baseline self-comparison passed; this only validates the comparison path, not fresh deployed equality. `git diff --check` passed.
 
-## Live acceptance matrix — all pending
+## Current acceptance matrix — 1 November 2026
 
-| Test | Expected evidence |
+| Test | Evidence and result |
 |---|---|
-| Return valid submitted assessment | Actual client HTTP status/body, RETURNED header, preserved levels/evidence, reason/actor/time/history readback |
-| Missing/whitespace reason | Rejected before writes; unchanged header/items/history/log |
-| Employee or out-of-scope manager Return | Denied server-side; unchanged data/log |
-| Duplicate Return and stale browser | Predictable conflict; one transition only; no duplicate mail |
-| Employee edit/resubmit | Reason visible; own data only; saved evidence retained; completeness enforced; SUBMITTED readback |
-| Manager re-review/confirm | Fresh review required after changed self data; no overwrite of SelfLevel; CONFIRMED readback |
-| Return plan | Reviewer/ADMIN only; reason preserved; completed actions not erased; employee remains read-only |
-| Reopen completed action | Prior completion retained; action/parent coherent; partial failure recoverable |
-| Recomplete | Prior event retained; consistent counts/parent; deliberate notification policy |
-| Regression | Fresh isolated synthetic cycle; previous Gate 1–2 records untouched; ordinary saves/reads/conflicts do not notify |
+| Assessment Return/edit/resubmit | PASS: actual Return HTTP 200; SharePoint RETURNED Revision 2; 12 prior snapshots including saved review; employee corrected evidence and resubmitted; three durable events. |
+| Fresh manager review/confirm | PASS: old review counted 0/12; new round required 12/12; final SharePoint CONFIRMED Revision 2, empty lock. |
+| Plan Return | PASS: IN_PROGRESS to DRAFT; completed action and completion timestamp preserved; only incomplete action editable; reason/actor/time/action snapshots read back. |
+| Action Reopen/recomplete | PASS: COMPLETED to PLANNED, completed parent to IN_PROGRESS; actual Reopen HTTP 200; durable intent before action write; old action/parent completion retained; recompletion coherent. Final plan COMPLETED Revision 6, empty lock. |
+| Real concurrent requests | PASS: two simultaneous Return calls produced one HTTP 200 and one HTTP 409 claim failure; Revision 5 to 6, exactly one history event; identical action hashes before/after. |
+| Employee mutation denials | PASS: actual HTTP 403 for assessment Return, plan Return and action Reopen; full read-response hashes unchanged. |
+| Reasons/state/stale/duplicate | PASS: eight Manager actual HTTP 400/409 cases; full read-response hashes unchanged. Duplicate-completion live case was rejected at the completed-parent boundary; same-parent duplicate guard also tested offline. |
+| Reviewer scope | Actual out-of-scope read denied; same unchanged shared scope guard structurally verified. Out-of-scope transition denial itself tested in generated-graph fixtures, not separately induced against an old live record. |
+| UI failure/fix/retest | Reproduced false failure when backend content-ready count included preserved completed action. Corrected UI count only; generated-graph test failed before/passed after; live fresh-page save and restart with mixed states passed. |
+| Confirmed-plan reentry | PASS: fresh page opens existing authorized assessment via original read contract, then resumes existing plan. Denied scope clears selection; no added API or role. |
+| Notification regression | PASS reservation/log evidence: Gate 3 9 distinct SENT keys with no repeat-event duplicates; Gate 2 original 9 keys/source run IDs/SENT states unchanged. Independent mailbox delivery not rechecked. |
+| Partial connector failure/recovery | Generated-graph failure fixture retains durable intent and lock; recovery SOP documented. No destructive live connector-failure injection or automatic lock clearing. |
+| Post-import full definition | PASS all three. Employee and Manager differ only at 2 export timestamps each. Development has 188 narrowly reviewed representation changes, no executable drift. Original IDs/connections retained; checker 0/0 and On. |
 
-For each live test record caller identity, actual HTTP code/body semantics, authoritative backend state, notification/log outcome, failure/fix/retest separately. Flow Succeeded alone is insufficient. Do not use prior Gate 2 completed assessment ID 7 / plan ID 4 as mutable Gate 3 fixtures.
+Only synthetic Gate 3 assignment ID 8 / plan ID 5 were mutated. Gate 1 and Gate 2 historical PASS and Gate 2 H's configuration-only limitation are retained. Gate 1/2 business records were read only.
 
 ## Original export blocker — resolved by owner-supplied packages
 
@@ -168,3 +173,33 @@ Remaining sequence: select Manager-Gate3.zip → verify original Manager Update 
 Actual HTTP negative probes of Manager return_assessment and Development reopen_development_action each returned 401, success false, Invalid session at 2026-10-31T16:46:39.998Z using an intentionally invalid synthetic session. These prove live action routing/session rejection only, not successful transitions or lock behavior. No business mutation occurred.
 
 Fresh cycle UAT_GATE3_20261031_01 was created and read back as PILOT, DRAFT and active, with explicit synthetic-only notes. The local preview exposes only this cycle for assignment; repository configuration and hosting were not changed. Manager sign-in is awaiting user-operated OTP. Employee sign-in, authenticated lifecycle/negative/concurrency checks, actual SharePoint readback, notifications and deployed-definition export comparison remain pending. Gate 3 remains OPEN. Gate 2 assessment 7 / plan 4 were not mutated.
+
+## Authenticated assessment acceptance — continuation into 1 November
+
+The owner completed separate Manager and Employee OTP sign-ins. Fresh Gate 3 assignment was created successfully with 12 items, Assessment ID 8, key PILOT|UAT_GATE3_20261031_01|watchara.p@gpscgroup.com|R1. Employee saved all 12 synthetic ratings/evidence and submitted. Reviewer saved one synthetic round-1 decision. Empty Return reason was rejected by the UI before sending. Return with a synthetic reason succeeded; the actual G3 Return Response producer outputs show HTTP 200, success true, RETURNED, revision 2, and the connected client displayed success. SharePoint readback independently confirms RETURNED, Revision 2 and empty WorkflowLock. TransitionHistory contains the initial ASSESSMENT_SUBMITTED and ASSESSMENT_RETURNED with all 12 prior item snapshots, including item 1 self level 3, prior evidence, validated level 3 and item revision 1.
+
+Employee refreshed, edited only item 1 evidence in RETURNED, saved and resubmitted successfully. SharePoint readback confirms SUBMITTED at Revision 2. Manager sees corrected evidence and 0/12 reviewed, with confirmation disabled: the old saved decision is retained but does not satisfy the new round. Fresh review is in progress. Notification Log visible rows for this assessment show exactly one ASSIGNED and one SUBMITTED reservation, both SENT; no Return/resubmit row is added. SENT is not independent mailbox-delivery proof. Gate 2 row remains CONFIRMED, Revision 1.
+
+Local UI correction: when a cycle has no cycleName, display its cycleKey instead of an indistinguishable generic title. This permits unambiguous selection of the isolated UAT cycle. All seven existing browser suites and the generated-graph Gate 3 browser suite passed after this one-line change. Hosted frontend remains unchanged. Evidence JSON and PNG files are in the chat outputs. Plan acceptance, remaining authenticated negatives/concurrency and deployed-definition comparison are still pending; Gate 3 remains OPEN.
+
+## Latest continuation — completed core acceptance, 1 November 2026
+
+Final API and SharePoint readback: assessment CONFIRMED Revision 2 (12 items); plan COMPLETED Revision 6 (2 completed actions), WorkflowLock empty, 7 plan transition-history entries. Original first action completion 2026-10-31T17:06:24Z remains in the first Reopen intent; final first-action completion is 2026-10-31T17:29:03Z. Both earlier parent completion values remain in Reopen intents. No history was deleted or rewritten to hide a test result.
+
+The count mismatch was an application validation defect, not a failed backend save or a connector outage: producer save outputs were HTTP 200 with plannedActionCount 2 for one PLANNED plus one COMPLETED action; release succeeded and corrected content read back. UI now counts nonempty planning content for save/start and COMPLETED status for completion. Added tests reproduce the failure and cover both corrected save and restart. The fixed frontend was freshly loaded and live retested successfully before final acceptance. The earlier signed-in tab's cached pre-fix behavior was recorded separately; no blind write retry or lock reset was used.
+
+Open existing assessment permits authorized confirmed-plan reentry using get_review_assessment, with response identity checks, shared server reviewer/ADMIN scope, session guards and no automatic create. The existing evidenced duplicate-plan response resumes the existing plan. This navigation addition changes no queue scope or permission.
+
+The local, non-deployed acceptance harness ran 11 denial cases through actual waiting HTTP clients using user-operated existing sessions. It targets only the isolated Gate 3 keys, never displays/exports session tokens, has no automatic retries, and stops on unexpected outcomes. Read-response SHA-256 hashes were equal before and after each role's suite. A separate controlled concurrent Return test produced one winner/one 409, one revision/history increment and unchanged action hashes. Harness files remain outside the repository and hosting package.
+
+Post-import Development export downloaded through the supported portal and was compared privately. The raw exact guard first flagged 188 differences. Each was reviewed as one of 48 added empty runAfter objects, 125 designer operationMetadataId identifiers, 13 removed empty else branches or 2 export timestamps; no executable/authorization/connection/trigger/notification difference remains. tools/check-deployed-flow.cjs checks those exact shapes and then passes their exact fingerprints to the original strict guard. Its mutation tests reject changed recipient/dependency/connection/trigger, unknown metadata and removed executable branches; the original strict guard is not weakened. Employee/Manager Export remains Loading across normal/legacy presentation and reload; the portal logged generic PromiseRejectionEvent errors. Their full post-import comparisons were kept explicit prerequisites until supported Export recovered, as recorded below; PASS was not inferred from import/checker/run success.
+
+Validation: seven original browser suites passed after the cycle-name fallback; affected Manager/Development/session/general suites passed after subsequent changes; generated-graph Gate 3 UI suite (including reentry, denied scope, mixed-state save/restart) passed; deployed-comparison mutation suite, original flow guard, syntax and diff checks passed. Source packages, signed URLs, credentials and OTPs are excluded from the repository and public artifacts. Existing architecture, permissions, original connections, triggers and Gate 2 notification logic are retained.
+
+## Final export verification — blocker resolved
+
+The portal subsequently recovered for Manager and Employee without browser security, connection, owner or permission changes. Supported post-import packages Manager-Gate3-deployed-20261101 and Employee-Gate3-deployed-20261101 were downloaded and extracted privately. Both compare to their candidates with only clientLastModifiedTime and connectionKeySavedTimeKey timestamp changes. All three whole-definition comparisons now PASS, with no executable/authorization/trigger/connection/notification drift. Prior Loading screenshots and notes are historical. The checkpoint has no remaining technical blocker.
+
+The local branch and review patch contain code, offline tests and documentation only. Raw source/deployed packages and sessions remain excluded. The existing hosting workflow deploys main pushes and main-targeted pull requests; review should use the original handover branch codex/management-demo-release as base to avoid an incidental hosting deployment. Merge/hosting rollout is a separate reviewed step. Older clients cannot mutate returned/reopened revisions without expectedRevision; deploy the tested frontend before normal users operate those records. Gate 1–2 revision-1 contracts remain compatible.
+
+Run node verify-deployed-flow.cjs for comparator mutation checks and node tools/check-deployed-flow.cjs <candidate.json> <private-deployed.json> <safe-report.json> for the exact post-import review. The raw check-flow-change.cjs still rejects every unapproved difference.
