@@ -48,11 +48,16 @@ function build(source,kind,auditListId){
  for(const[write,eventName,releaseName,lastWrite=write,doneName=eventName]of transitions){
   const location=locate(root,write),prefix='G4_Audit_'+write;
   const event={...clone(find(eventName).inputs),phase:'REQUESTED'};
+  const parentFields=kind==='Development'?['PlanKey','Status','Revision','StartedAt','CompletedAt']:['AssessmentKey','Status','Revision','SubmittedAt','ConfirmedAt'];
+  event.beforeParent=Object.fromEntries(parentFields.map(f=>[f,`@outputs('${header}')?['${f}']`]));
   location.parent[prefix+'_Intent']={type:'Compose',inputs:event,runAfter:clone(location.node.runAfter||{})};
   location.parent[prefix+'_PersistIntent']=append(prefix+'_Intent','REQUESTED',after(prefix+'_Intent'));
   location.node.runAfter=after(prefix+'_PersistIntent');
   const release=locate(root,releaseName);
-  release.parent[prefix+'_Commit']=append(doneName,'COMMITTED',after(lastWrite));
+  const committed={...clone(find(doneName).inputs),phase:'COMMITTED',at:'@utcNow()',afterParent:Object.fromEntries(parentFields.map(f=>[f,`@body('${lastWrite}')?['${f}']`]))};
+  if(lastWrite===write)committed.after=clone(committed.afterParent);
+  release.parent[prefix+'_Done']={type:'Compose',inputs:committed,runAfter:after(lastWrite)};
+  release.parent[prefix+'_Commit']=append(prefix+'_Done','COMMITTED',after(prefix+'_Done'));
   release.node.runAfter=after(prefix+'_Commit');
  }
  // Read only after the original session/profile/owner/reviewer guards. No new
