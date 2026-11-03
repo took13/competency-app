@@ -152,3 +152,6 @@ window.COMPETENCY_CONFIG = {
   }
 };
 
+
+// Approved standalone assigned-reviewer endpoint; server session remains mandatory.
+window.COMPETENCY_CONFIG.reviewerApiUrl = "https://defaultc6445630e6024993a6057e41f70338.e8.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/08/workflows/19a2a2731ad04c8ab269ff05f5e548f7/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=UC3J8cc9AlOmOafwMQqEJXRntOsORz32duC0GdzjQlw";

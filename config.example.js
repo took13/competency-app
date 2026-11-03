@@ -13,6 +13,7 @@ window.COMPETENCY_CONFIG = {
   "assessmentApiUrl": "",
   "developmentApiUrl": "",
   "dashboardApiUrl": "",
+  "reviewerApiUrl": "",
   "temporaryDemoOnly": true,
   "contracts": {
     "managerQueue": {

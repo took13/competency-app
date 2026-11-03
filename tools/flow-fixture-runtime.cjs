@@ -34,7 +34,7 @@ function call(n,a,c){const f={
  concat:()=>a.join(''),string:()=>typeof a[0]==='object'?JSON.stringify(a[0]):String(a[0]??''),json:()=>JSON.parse(a[0]),
  trim:()=>String(a[0]??'').trim(),toLower:()=>String(a[0]??'').toLowerCase(),replace:()=>String(a[0]).split(a[1]).join(a[2]),
  createArray:()=>a,array:()=>Array.isArray(a[0])?a[0]:[a[0]],union:()=>[...new Map(a.flat().map(v=>[JSON.stringify(v),v])).values()],
- sub:()=>Number(a[0])-Number(a[1]),add:()=>Number(a[0])+Number(a[1]),contains:()=>a[0]?.includes(a[1])??false,
+ sub:()=>Number(a[0])-Number(a[1]),add:()=>Number(a[0])+Number(a[1]),contains:()=>a[0]&&typeof a[0]==='object'&&!Array.isArray(a[0])?Object.hasOwn(a[0],a[1]):a[0]?.includes(a[1])??false,
  utcNow:()=>new Date().toISOString(),ticks:()=>Date.parse(a[0])*10000
  };if(!f[n])throw Error('Unimplemented WDL function '+n);return f[n]();}
 function condition(x,c){if(typeof x==='string')return value(x,c);const[k,v]=Object.entries(x)[0];return call(k,Array.isArray(v)?v.map(a=>typeof a==='object'&&!Array.isArray(a)?condition(a,c):value(a,c)):[condition(v,c)],c);}
