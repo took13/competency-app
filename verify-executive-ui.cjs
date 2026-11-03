@@ -1,0 +1,21 @@
+const fs=require('fs'),http=require('http'),assert=require('node:assert/strict'),{chromium}=require('playwright');
+const server=http.createServer((q,r)=>{const f=q.url.split('?')[0].slice(1)||'index.html';if(!['index.html','app.js','assignment.js','styles.css','config.js'].includes(f))return r.writeHead(404).end();r.setHeader('Content-Type',f.endsWith('.js')?'text/javascript':f.endsWith('.css')?'text/css':'text/html');r.end(f==='config.js'?'window.COMPETENCY_CONFIG={dashboardApiUrl:"https://dashboard.test/read"}':fs.readFileSync(__dirname+'/'+f));});
+const group={discipline:'ETM',assigned:2,submitted:1,awaitingReview:0,confirmed:1};
+const data=()=>({success:true,dashboard:{version:1,source:'SHAREPOINT',mode:'PILOT',cycleKey:'ETM_UI_DEMO_2026',retrievedAt:new Date().toISOString(),scope:['ETM'],disciplines:[{...group}],totals:{assigned:2,submitted:1,awaitingReview:0,confirmed:1},gaps:null,developmentPlanCoverage:null}});
+(async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});try{
+ const page=await browser.newPage(),errors=[],calls=[];let body=data(),code=200,delayed;
+ page.on('pageerror',e=>errors.push(e.message));
+ await page.route('https://dashboard.test/**',async route=>{calls.push(route.request().postDataJSON());if(delayed)await delayed;await route.fulfill({status:code,contentType:'application/json',body:JSON.stringify(body)});});
+ await page.goto('http://127.0.0.1:'+server.address().port);
+ const enter=async()=>{await page.evaluate(()=>{state.demo=false;state.verified=true;state.profile={appRole:'SVP'};state.page='dashboard';sessionStorage.setItem(K.token,'fixture-token');sessionStorage.setItem(K.expires,new Date(Date.now()+3600000).toISOString());sessionStorage.setItem(K.activity,String(Date.now()));dashboardPage();});};
+ await enter();await page.getByText('Discipline breakdown',{exact:true}).waitFor();assert.match(await page.locator('#content').innerText(),/50%/);assert.match(await page.locator('#content').innerText(),/Live · SharePoint records/);assert.deepEqual(calls[0],{action:'get_executive_dashboard',sessionToken:'fixture-token'});
+ for(const width of [320,768,1440]){await page.setViewportSize({width,height:1000});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
+ body=data();Object.assign(body.dashboard.totals,{assigned:0,submitted:0,confirmed:0});Object.assign(body.dashboard.disciplines[0],body.dashboard.totals);await enter();await page.getByText('No assessment data in this pilot scope',{exact:true}).waitFor();assert(!/0%/.test(await page.locator('#content').innerText()));
+ code=403;body={success:false};await enter();await page.getByText('Dashboard access denied',{exact:true}).waitFor();assert.equal(await page.locator('.metrics').count(),0);
+ code=503;await enter();await page.getByText('Live dashboard unavailable',{exact:true}).waitFor();assert.equal(await page.locator('.metrics').count(),0);
+ code=200;body=data();body.dashboard.totals.assigned=999;await enter();await page.getByText('Live dashboard unavailable',{exact:true}).waitFor();assert(!/999/.test(await page.locator('#content').innerText()));
+ code=401;body={success:false};await enter();await page.waitForFunction(()=>state.page==='login');assert.equal(await page.evaluate(()=>sessionStorage.getItem(K.token)),null);
+ code=200;body=data();let release;delayed=new Promise(r=>release=r);await enter();await page.getByText('Loading live pilot data…',{exact:true}).waitFor();await page.evaluate(()=>clearSessionUI());release();delayed=null;await page.waitForTimeout(150);assert.equal(await page.evaluate(()=>state.page),'login');assert.equal(await page.locator('.metrics').count(),0);
+ await page.click('#demo');const before=calls.length;await page.selectOption('#rolePlayer','svp');assert.match(await page.locator('#content').innerText(),/Sample\/mock data only/);assert.equal(calls.length,before);
+ assert.deepEqual(errors,[]);console.log('PASS executive UI: real contract rendering, zero data, 403/503/401, malformed totals, late response after sign-out, responsive layout, isolated role-play. Mock transport only.');
+}finally{await browser.close();server.close();}})().catch(e=>{console.error(e);server.close();process.exitCode=1});

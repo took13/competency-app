@@ -1,4 +1,5 @@
 window.COMPETENCY_CONFIG = {
+  "dashboardApiUrl": "https://defaultc6445630e6024993a6057e41f70338.e8.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/29/workflows/e5a80778ab2847d0b4e0afec3415cf52/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=-T_0JHQEDtqGPn-3Yjqn5nxmO9gHD2ckfqGe1zas3fc",
   "assessmentCycles": [
     {
       "label": "UAT Gate 2 - email notifications 30 Oct 2026",
