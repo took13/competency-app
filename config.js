@@ -1,31 +1,37 @@
 window.COMPETENCY_CONFIG = {
   "dashboardApiUrl": "https://defaultc6445630e6024993a6057e41f70338.e8.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/29/workflows/e5a80778ab2847d0b4e0afec3415cf52/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=-T_0JHQEDtqGPn-3Yjqn5nxmO9gHD2ckfqGe1zas3fc",
   "assessmentCycles": [
-    {
-      "label": "UAT Gate 2 - email notifications 30 Oct 2026",
-      "cycleKey": "UAT_GATE2_20261030_01",
-      "type": "PILOT",
-      "active": true
-    },
-    {
-      "label": "รอบทดลองประเมิน ETM 2026 — PILOT",
-      "cycleKey": "ETM_UI_DEMO_2026",
-      "type": "PILOT",
-      "active": true
-    },
-    {
-      "label": "UAT Gate 1 - Watchara 29 Oct 2026",
-      "cycleKey": "UAT_GATE1_20261029_01",
-      "type": "PILOT",
-      "active": true
-    },
-    {
-      "label": "UAT Gate 1 - assignment recheck 02",
-      "cycleKey": "UAT_GATE1_20261029_02",
-      "type": "PILOT",
-      "active": true
-    }
-  ],
+  {
+    "label": "Controlled Pilot — ETM v1.3 + SSHE (4 Nov 2026)",
+    "cycleKey": "ETM_PILOT_V13_SSHE_20261104",
+    "type": "PILOT",
+    "active": true
+  },
+  {
+    "label": "UAT Gate 2 - email notifications 30 Oct 2026",
+    "cycleKey": "UAT_GATE2_20261030_01",
+    "type": "PILOT",
+    "active": true
+  },
+  {
+    "label": "รอบทดลองประเมิน ETM 2026 — PILOT",
+    "cycleKey": "ETM_UI_DEMO_2026",
+    "type": "PILOT",
+    "active": true
+  },
+  {
+    "label": "UAT Gate 1 - Watchara 29 Oct 2026",
+    "cycleKey": "UAT_GATE1_20261029_01",
+    "type": "PILOT",
+    "active": true
+  },
+  {
+    "label": "UAT Gate 1 - assignment recheck 02",
+    "cycleKey": "UAT_GATE1_20261029_02",
+    "type": "PILOT",
+    "active": true
+  }
+],
   "authApiUrl": "https://defaultc6445630e6024993a6057e41f70338.e8.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/02/workflows/79d8013dc6b6409c8fd4abc825d09290/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=O57vgFdV2iOnlCgPuyCPa8Ywe_YXaCpagcSm4D3osMk",
   "employeeApiUrl": "https://defaultc6445630e6024993a6057e41f70338.e8.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/03/workflows/72723747a0eb456cb067e06dddc92e4f/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=jaWMIHLwrmn0ib5UAEGJ_OGHHs9wMa4o-_ejhdphoNY",
   "managerApiUrl": "https://defaultc6445630e6024993a6057e41f70338.e8.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/01/workflows/c025bbe4ca9942f581adac24c594a74e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=S7u47SP-rvT6Gju3HlZNpRRyPAfwXSCJZMMEPE5j-5g",
