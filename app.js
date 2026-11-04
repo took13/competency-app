@@ -105,7 +105,11 @@ async function api(kind,action,payload={}){
  const authAction=['request_otp','verify_otp'].includes(action);
  if(!authAction&&!sessionValid()){expireSession();throw staleSession();}
  const url=kind==='dashboard'?window.COMPETENCY_CONFIG?.dashboardApiUrl:kind==='reviewer'?window.COMPETENCY_CONFIG?.reviewerApiUrl:sessionStorage.getItem(K[kind]);if(!validEndpoint(url))throw new Error('Missing endpoint');
- const generation=state.generation,token=sessionStorage.getItem(K.token),c=new AbortController(),timer=setTimeout(()=>c.abort(),kind==='dashboard'?60000:kind==="assessment"&&action==="create_pilot_assignment"?110000:25000);sessionRequests.add(c);
+ // Power Automate writes can commit before a slow response/readback finishes.
+ // Allow a bounded wait without retrying; session expiry still aborts requests.
+ const mutation=/^(save_|submit_|confirm_|create_|start_|complete_|return_|reopen_)/.test(action);
+ const requestTimeout=authAction?25000:mutation?110000:60000;
+ const generation=state.generation,token=sessionStorage.getItem(K.token),c=new AbortController(),timer=setTimeout(()=>c.abort(),requestTimeout);sessionRequests.add(c);
  try{const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...(!authAction?{sessionToken:token}:{}),...payload}),signal:c.signal,credentials:'omit',referrerPolicy:'no-referrer'});let d;try{d=await response.json()}catch{throw new Error('Invalid response')}
   if(generation!==state.generation||(!authAction&&token!==sessionStorage.getItem(K.token)))throw staleSession();
   if(!authAction&&!sessionValid()){expireSession();throw staleSession();}

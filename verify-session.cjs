@@ -27,6 +27,17 @@ life=10000;await signin();await page.clock.fastForward(5000);await page.locator(
 await signin();const later=await page.evaluate(()=>Date.now()+31*60000);await page.clock.setSystemTime(new Date(later));await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await clean();
 // A late protected read cannot repopulate assessment content after logout.
 await signin();heldAction='get_my_assessment';hold=new Promise(r=>release=r);await page.evaluate(()=>{void api('employee','get_my_assessment',{assessmentKey:'fixture'}).then(()=>{document.body.dataset.lateResponse='accepted';}).catch(()=>{});});await page.waitForFunction(()=>sessionValid());await page.clock.fastForward(30*60000+1);await clean();release();hold=null;assert.equal(await page.locator('body').getAttribute('data-late-response'),null);
+// A slow committed write may take longer than the former 25-second UI budget.
+// Waiting is bounded and must never produce an automatic duplicate mutation.
+await signin();heldAction='save_self_assessment';hold=new Promise(r=>release=r);
+let requested=page.waitForRequest(r=>r.url().includes('employee.test')&&r.postDataJSON()?.action===heldAction);
+await page.evaluate(()=>{void api('employee','save_self_assessment',{assessmentKey:'synthetic'}).then(()=>document.body.dataset.slowWrite='saved').catch(e=>document.body.dataset.slowWrite=e.name);});await requested;
+await page.clock.fastForward(30000);assert.equal(await page.locator('body').getAttribute('data-slow-write'),null);release();hold=null;await page.waitForFunction(()=>document.body.dataset.slowWrite==='saved');
+const writeCalls=calls.filter(x=>x==='save_self_assessment').length;
+hold=new Promise(r=>release=r);requested=page.waitForRequest(r=>r.url().includes('employee.test')&&r.postDataJSON()?.action===heldAction);
+await page.evaluate(()=>{void api('employee','save_self_assessment',{assessmentKey:'synthetic'}).then(()=>document.body.dataset.boundedWrite='saved').catch(e=>document.body.dataset.boundedWrite=e.name);});await requested;
+await page.clock.fastForward(110001);await page.waitForFunction(()=>document.body.dataset.boundedWrite==='AbortError');assert.equal(calls.filter(x=>x==='save_self_assessment').length,writeCalls+1);release();hold=null;
+await page.locator('#signout').click();await clean();
 await signin();unauthorized=true;await page.evaluate(async()=>{try{await api('auth','get_user_profile');}catch(e){fail(e);}});await clean();unauthorized=false;assert.deepEqual(errors,[]);
 fs.mkdirSync(__dirname+'/test-results',{recursive:true});await page.screenshot({path:__dirname+'/test-results/session-expired-'+role.toLowerCase()+'.png'});console.log('PASS '+role+': 30m idle, expired refresh/write blocking, legacy cache, checking UI, late profile/read, trusted activity, absolute expiry, suspended focus, backend 401');await page.close();}
 }finally{await browser.close();server.close();}})().catch(e=>{console.error(e);server.close();process.exitCode=1;});
