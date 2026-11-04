@@ -37,3 +37,12 @@ nav button.active{box-shadow:inset 3px 0 var(--brand-sky)}
 @media(max-width:600px){.statline{flex-wrap:wrap;gap:12px}.demo-toolbar select{max-width:100%;min-width:0}.demo-toolbar{flex-wrap:wrap}.metrics{grid-template-columns:1fr 1fr}.metrics .card{padding:14px}.metrics strong{overflow-wrap:anywhere}}
 
 .level-name{display:block;max-width:145px;font-size:11px;overflow-wrap:anywhere}.jlr-guide{margin:14px 0}.jlr-entry{border-top:1px solid var(--line);padding:8px 0;overflow-wrap:anywhere}.jlr-entry p{margin:6px 0}.levels button span{white-space:normal}.level-select{max-width:100%;font-size:20px}
+
+/* Library metadata stays below the full competency name. */
+.outline button{display:flex;align-items:flex-start;gap:6px;white-space:normal}
+.outline .n{flex:0 0 24px}
+.competency-nav-label{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0;overflow-wrap:anywhere}
+.competency-library{max-width:100%;padding:1px 7px;border:1px solid #dce3ed;border-radius:8px;background:#f3f6fa;color:#42536d;font-size:11px;line-height:1.5;font-weight:400;text-align:left}
+@media(max-width:1050px){.outline button{flex:0 0 190px;max-width:100%}}
+.outline{min-width:0;max-width:100%}
+@media(max-width:1050px){.assessment-layout{grid-template-columns:minmax(0,1fr)}}
