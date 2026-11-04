@@ -38,11 +38,17 @@ nav button.active{box-shadow:inset 3px 0 var(--brand-sky)}
 
 .level-name{display:block;max-width:145px;font-size:11px;overflow-wrap:anywhere}.jlr-guide{margin:14px 0}.jlr-entry{border-top:1px solid var(--line);padding:8px 0;overflow-wrap:anywhere}.jlr-entry p{margin:6px 0}.levels button span{white-space:normal}.level-select{max-width:100%;font-size:20px}
 
-/* Library metadata stays below the full competency name. */
+/* Library metadata appears once per collapsible navigation group. */
 .outline button{display:flex;align-items:flex-start;gap:6px;white-space:normal}
 .outline .n{flex:0 0 24px}
 .competency-nav-label{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0;overflow-wrap:anywhere}
-.competency-library{max-width:100%;padding:1px 7px;border:1px solid #dce3ed;border-radius:8px;background:#f3f6fa;color:#42536d;font-size:11px;line-height:1.5;font-weight:400;text-align:left}
-@media(max-width:1050px){.outline button{flex:0 0 190px;max-width:100%}}
-.outline{min-width:0;max-width:100%}
-@media(max-width:1050px){.assessment-layout{grid-template-columns:minmax(0,1fr)}}
+.outline{display:block;min-width:0;max-width:100%;max-height:calc(100vh - 40px);overflow-y:auto;overscroll-behavior:contain}
+.outline button{min-width:0;max-width:100%;padding:8px 7px;line-height:1.5}
+.competency-nav-group{margin:0;padding:5px 0;border-top:1px solid var(--line)}
+.competency-nav-group summary{display:flex;align-items:center;gap:7px;list-style:none;padding:8px 5px;color:var(--ink);font-size:12px;overflow-wrap:anywhere}
+.competency-nav-group summary::-webkit-details-marker{display:none}
+.competency-nav-group summary::before{content:'›';flex:0 0 10px;font-size:18px;line-height:1;transition:transform .15s}
+.competency-nav-group[open]>summary::before{transform:rotate(90deg)}
+.competency-group-count{margin-left:auto;flex:0 0 auto;color:var(--muted);font-size:11px;font-weight:400}
+.competency-group-items{padding:0 0 5px 5px}
+@media(max-width:1050px){.assessment-layout{grid-template-columns:minmax(0,1fr)}.outline{max-height:none;overflow:visible}.outline .eyebrow{display:block}}
