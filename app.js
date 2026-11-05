@@ -108,7 +108,7 @@ async function api(kind,action,payload={}){
  // Power Automate writes can commit before a slow response/readback finishes.
  // Allow a bounded wait without retrying; session expiry still aborts requests.
  const mutation=/^(save_|submit_|confirm_|create_|start_|complete_|return_|reopen_)/.test(action);
- const requestTimeout=authAction?25000:mutation?110000:60000;
+ const requestTimeout=authAction?25000:action==='preview_assignment'?115000:mutation?110000:60000;
  const generation=state.generation,token=sessionStorage.getItem(K.token),c=new AbortController(),timer=setTimeout(()=>c.abort(),requestTimeout);sessionRequests.add(c);
  try{const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...(!authAction?{sessionToken:token}:{}),...payload}),signal:c.signal,credentials:'omit',referrerPolicy:'no-referrer'});let d;try{d=await response.json()}catch{throw new Error('Invalid response')}
   if(generation!==state.generation||(!authAction&&token!==sessionStorage.getItem(K.token)))throw staleSession();
