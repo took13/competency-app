@@ -5,7 +5,10 @@ const previewFields=['employee','employeeName','profile','trackKey','jobGradeCod
 function assignmentMapping(){return window.COMPETENCY_CONFIG?.assignmentContract;}
 // Cycle source boundary: replace this config adapter when a list contract is verified.
 function assignmentCycles(){
- const rows=window.COMPETENCY_CONFIG?.assessmentCycles;
+ const rows=[...(Array.isArray(window.COMPETENCY_CONFIG?.assessmentCycles)?window.COMPETENCY_CONFIG.assessmentCycles:[]),
+  {label:'Controlled Pilot — EEM v1.12 + SSHE (5 Nov 2026)',cycleKey:'EEM_PILOT_V112_SSHE_20261105',type:'PILOT',active:true},
+  {label:'Controlled Pilot — ECM R4 + SSHE (5 Nov 2026)',cycleKey:'ECM_PILOT_R4_SSHE_20261105',type:'PILOT',active:true}
+ ];
  const seen=new Set();
  return (Array.isArray(rows)?rows:[]).filter(c=>c&&c.active===true&&c.type==='PILOT'&&typeof c.label==='string'&&c.label.trim()&&typeof c.cycleKey==='string'&&c.cycleKey.trim()&&!seen.has(c.cycleKey)&&seen.add(c.cycleKey));
 }
