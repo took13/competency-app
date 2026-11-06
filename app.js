@@ -74,6 +74,15 @@ const endpointFields=[['authUrl','auth','authApiUrl'],['employeeUrl','employee',
 function validEndpoint(value){try{const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password}catch{return false}}
 function loadLocalConfig(){const config=window.COMPETENCY_CONFIG;if(!config||typeof config!=='object')return;let changed=false;for(const [,kind,name] of endpointFields){const value=typeof config[name]==='string'?config[name].trim():'';if(validEndpoint(value)){if(sessionStorage.getItem(K[kind])!==value)changed=true;sessionStorage.setItem(K[kind],value)}}if(changed)[K.token,K.expires,K.user,K.activity].forEach(k=>sessionStorage.removeItem(k))}
 function endpointsReady(){return endpointFields.every(([,kind])=>validEndpoint(sessionStorage.getItem(K[kind])))}
+// Admin-only preview configuration. Official Create remains closed pending live UAT.
+if(window.COMPETENCY_CONFIG&&!window.COMPETENCY_CONFIG.officialAssignmentContract){
+ const previewDefaults={
+  "assessmentCycles": []
+};
+ window.COMPETENCY_CONFIG.officialAssignmentContract=previewDefaults.officialAssignmentContract;
+ window.COMPETENCY_CONFIG.assessmentCycles=[...(window.COMPETENCY_CONFIG.assessmentCycles||[]),...previewDefaults.assessmentCycles];
+}
+
 loadLocalConfig();
 
 const fixture=JSON.parse($('fixture').textContent),state={demo:false,verified:false,page:'login',profile:{},assignments:[],assessment:null,drafts:new Map(),saving:new Set(),loading:false,submitting:false,requestId:null,generation:0};
