@@ -397,7 +397,8 @@ async function saveDevelopmentForm(e){
 }
 
 function adminPage(){
- $('content').innerHTML=workspaceHeading('ADMINISTRATION','Keep capability governance clear.','Control assignments and maintain a consistent competency framework.')+`<div class="preview-note">${state.demo?'Administration shell preview · This does not grant Pratheep an ADMIN role.':'Administration shell · Server authorization is required for every change.'}</div><div class="grid"><section class="card"><h2>Assessment assignments</h2><p class="muted">Assign a cycle using an approved employee profile. The backend determines competency items and target levels.</p>${contractNotice('assignmentCreate','Assignment')}<form id="assignmentForm"><label for="assignmentEmail">Employee email</label><input id="assignmentEmail" type="email" required><label for="assignmentCycle">Cycle key</label><input id="assignmentCycle" required><label for="assignmentProfile">Approved profile key</label><input id="assignmentProfile" required><button class="primary" disabled>Create assignment</button></form></section><section class="card"><h2>Governance workspace</h2><div class="statline"><b>Competency catalog</b><span class="pill">Managed in source system</span></div><div class="statline"><b>Profile requirements</b><span class="pill">Backend controlled</span></div><div class="statline"><b>Cycle & role access</b><span class="pill">Backend controlled</span></div><p class="muted small">The browser cannot grant roles or override target levels.</p></section></div>`;
+ if(!state.demo&&(!state.verified||role()!=='ADMIN'))return;
+ $('content').innerHTML=workspaceHeading('ADMINISTRATION','Official assessment readiness','ตรวจความพร้อมจากข้อมูลจริง ระบบกำหนด profile และเป้าหมายให้โดยอัตโนมัติ')+assignmentSection();
 }
 
 document.addEventListener('change',e=>{if(e.target.id==='rolePlayer')startRolePlay(e.target.value);});
