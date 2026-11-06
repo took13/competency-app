@@ -77,7 +77,114 @@ function endpointsReady(){return endpointFields.every(([,kind])=>validEndpoint(s
 // Admin-only preview configuration. Official Create remains closed pending live UAT.
 if(window.COMPETENCY_CONFIG&&!window.COMPETENCY_CONFIG.officialAssignmentContract){
  const previewDefaults={
-  "assessmentCycles": []
+  "officialAssignmentContract": {
+    "version": "OFFICIAL_ASSIGNMENT_V1",
+    "verified": true,
+    "previewVerified": true,
+    "liveVerified": false,
+    "createEnabled": false,
+    "baselineDigest": "cbadf56d4ebca8d9e0850fad45e7878b3e866fde8790093b448ac440198653a7",
+    "profiles": {
+      "EEM_OFFICIAL_20261105_EEM_GENERAL_JR_4_6_R1": {
+        "cycleKey": "EEM_ANNUAL_2026",
+        "expectedItemCount": 46
+      },
+      "EEM_OFFICIAL_20261105_EEM_GENERAL_JR_7_8_R1": {
+        "cycleKey": "EEM_ANNUAL_2026",
+        "expectedItemCount": 46
+      },
+      "EEM_OFFICIAL_20261105_EEM_GENERAL_SR_9_10_R1": {
+        "cycleKey": "EEM_ANNUAL_2026",
+        "expectedItemCount": 46
+      },
+      "ECM_OFFICIAL_20261105_ECM_GENERAL_JR_4_6_R1": {
+        "cycleKey": "ECM_ANNUAL_2026",
+        "expectedItemCount": 41
+      },
+      "ECM_OFFICIAL_20261105_ECM_GENERAL_JR_7_8_R1": {
+        "cycleKey": "ECM_ANNUAL_2026",
+        "expectedItemCount": 41
+      },
+      "ECM_OFFICIAL_20261105_ECM_GENERAL_SR_9_10_R1": {
+        "cycleKey": "ECM_ANNUAL_2026",
+        "expectedItemCount": 41
+      },
+      "ETM_OFFICIAL_20261105_ETM_CIE_JR_4_6_R1": {
+        "cycleKey": "ETM_ANNUAL_2026",
+        "expectedItemCount": 40
+      },
+      "ETM_OFFICIAL_20261105_ETM_CIE_JR_7_8_R1": {
+        "cycleKey": "ETM_ANNUAL_2026",
+        "expectedItemCount": 40
+      },
+      "ETM_OFFICIAL_20261105_ETM_CIE_SR_9_10_R1": {
+        "cycleKey": "ETM_ANNUAL_2026",
+        "expectedItemCount": 40
+      },
+      "ETM_OFFICIAL_20261105_ETM_PI_JR_4_6_R1": {
+        "cycleKey": "ETM_ANNUAL_2026",
+        "expectedItemCount": 25
+      },
+      "ETM_OFFICIAL_20261105_ETM_PI_JR_7_8_R1": {
+        "cycleKey": "ETM_ANNUAL_2026",
+        "expectedItemCount": 25
+      },
+      "ETM_OFFICIAL_20261105_ETM_PI_SR_9_10_R1": {
+        "cycleKey": "ETM_ANNUAL_2026",
+        "expectedItemCount": 25
+      },
+      "ETM_OFFICIAL_20261105_ETM_PIM_JR_4_6_R1": {
+        "cycleKey": "ETM_ANNUAL_2026",
+        "expectedItemCount": 38
+      },
+      "ETM_OFFICIAL_20261105_ETM_PIM_JR_7_8_R1": {
+        "cycleKey": "ETM_ANNUAL_2026",
+        "expectedItemCount": 38
+      },
+      "ETM_OFFICIAL_20261105_ETM_PIM_SR_9_10_R1": {
+        "cycleKey": "ETM_ANNUAL_2026",
+        "expectedItemCount": 38
+      },
+      "ETM_OFFICIAL_20261105_ETM_TI_JR_4_6_R1": {
+        "cycleKey": "ETM_ANNUAL_2026",
+        "expectedItemCount": 41
+      },
+      "ETM_OFFICIAL_20261105_ETM_TI_JR_7_8_R1": {
+        "cycleKey": "ETM_ANNUAL_2026",
+        "expectedItemCount": 41
+      },
+      "ETM_OFFICIAL_20261105_ETM_TI_SR_9_10_R1": {
+        "cycleKey": "ETM_ANNUAL_2026",
+        "expectedItemCount": 41
+      }
+    }
+  },
+  "assessmentCycles": [
+    {
+      "label": "ETM Official Annual 2026",
+      "cycleKey": "ETM_ANNUAL_2026",
+      "type": "ANNUAL",
+      "mode": "OFFICIAL",
+      "active": true,
+      "baselineDigest": "cbadf56d4ebca8d9e0850fad45e7878b3e866fde8790093b448ac440198653a7"
+    },
+    {
+      "label": "EEM Official Annual 2026",
+      "cycleKey": "EEM_ANNUAL_2026",
+      "type": "ANNUAL",
+      "mode": "OFFICIAL",
+      "active": true,
+      "baselineDigest": "cbadf56d4ebca8d9e0850fad45e7878b3e866fde8790093b448ac440198653a7"
+    },
+    {
+      "label": "ECM Official Annual 2026",
+      "cycleKey": "ECM_ANNUAL_2026",
+      "type": "ANNUAL",
+      "mode": "OFFICIAL",
+      "active": true,
+      "baselineDigest": "cbadf56d4ebca8d9e0850fad45e7878b3e866fde8790093b448ac440198653a7"
+    }
+  ]
 };
  window.COMPETENCY_CONFIG.officialAssignmentContract=previewDefaults.officialAssignmentContract;
  window.COMPETENCY_CONFIG.assessmentCycles=[...(window.COMPETENCY_CONFIG.assessmentCycles||[]),...previewDefaults.assessmentCycles];
