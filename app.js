@@ -157,6 +157,12 @@ if(window.COMPETENCY_CONFIG&&!window.COMPETENCY_CONFIG.officialAssignmentContrac
         "cycleKey": "ETM_ANNUAL_2026",
         "expectedItemCount": 41
       }
+    },
+    "controlledUat": {
+      "enabled": true,
+      "employeeEmail": "kannattha.w@gpscgroup.com",
+      "cycleKey": "ETM_ANNUAL_2026",
+      "expectedItemCount": 25
     }
   },
   "assessmentCycles": [
