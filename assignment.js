@@ -2,7 +2,7 @@
 const assignmentState={values:{employeeEmail:'',cycleKey:''},preview:null,result:null,message:'',busy:false,securityResults:[]};
 function assignmentMapping(){return window.COMPETENCY_CONFIG?.officialAssignmentContract;}
 function assignmentReady(){const c=assignmentMapping();return c?.version==='OFFICIAL_ASSIGNMENT_V1'&&c.verified===true&&c.previewVerified===true&&/^[a-f0-9]{64}$/.test(c.baselineDigest||'');}
-function assignmentCreateReady(){const c=assignmentMapping(),u=c?.controlledUat,v=assignmentState.values;return assignmentReady()&&((c.liveVerified===true&&c.createEnabled===true)||(u?.enabled===true&&u.employeeEmail===v.employeeEmail.toLowerCase()&&u.cycleKey===v.cycleKey));}
+function assignmentCreateReady(){const c=assignmentMapping(),u=c?.controlledUat,v=assignmentState.values;return assignmentReady()&&((c.liveVerified===true&&c.createEnabled===true&&['EEM_ANNUAL_2026','ECM_ANNUAL_2026'].includes(v.cycleKey))||(u?.enabled===true&&u.employeeEmail===v.employeeEmail.toLowerCase()&&u.cycleKey===v.cycleKey));}
 function assignmentCycles(){const seen=new Set();return (window.COMPETENCY_CONFIG?.assessmentCycles||[]).filter(c=>assignmentReady()&&c?.active===true&&c.mode==='OFFICIAL'&&c.type==='ANNUAL'&&c.baselineDigest===assignmentMapping().baselineDigest&&typeof c.label==='string'&&c.label.trim()&&typeof c.cycleKey==='string'&&c.cycleKey.trim()&&!/PILOT|TEST/i.test(c.cycleKey)&&!seen.has(c.cycleKey)&&seen.add(c.cycleKey));}
 function assignmentSelectedCycle(){return assignmentCycles().find(c=>c.cycleKey===assignmentState.values.cycleKey);}
 function assignmentCount(v){return (typeof v==='number'||typeof v==='string'&&v.trim()!=='')&&Number.isSafeInteger(Number(v))&&Number(v)>=0?Number(v):null;}
