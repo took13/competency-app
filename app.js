@@ -81,8 +81,8 @@ if(window.COMPETENCY_CONFIG&&!window.COMPETENCY_CONFIG.officialAssignmentContrac
     "version": "OFFICIAL_ASSIGNMENT_V1",
     "verified": true,
     "previewVerified": true,
-    "liveVerified": false,
-    "createEnabled": false,
+    "liveVerified": true,
+    "createEnabled": true,
     "baselineDigest": "cbadf56d4ebca8d9e0850fad45e7878b3e866fde8790093b448ac440198653a7",
     "profiles": {
       "EEM_OFFICIAL_20261105_EEM_GENERAL_JR_4_6_R1": {
