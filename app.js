@@ -159,7 +159,7 @@ if(window.COMPETENCY_CONFIG&&!window.COMPETENCY_CONFIG.officialAssignmentContrac
       }
     },
     "controlledUat": {
-      "enabled": true,
+      "enabled": false,
       "employeeEmail": "kannattha.w@gpscgroup.com",
       "cycleKey": "ETM_ANNUAL_2026",
       "expectedItemCount": 25
